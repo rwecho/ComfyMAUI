@@ -1,0 +1,52 @@
+﻿@inject INotificationService notice
+
+@if (_isLoading)
+{
+    if (Skeleton != null)
+    {
+        @Skeleton
+    }
+    else
+    {
+        <Skeleton Active="true"></Skeleton>
+    }
+}
+else
+{
+    @ChildContent
+}
+
+
+@code {
+
+    [Parameter]
+    public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? Skeleton { get; set; }
+
+    [Parameter]
+    public required EventCallback OnLoad { get; set; }
+
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await OnLoad.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            await notice.Error(new NotificationConfig
+                {
+                    Message = "加载失败",
+                    Description = ex.Message
+                });
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

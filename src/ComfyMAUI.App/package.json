@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "watch:css": "tailwindcss -i main.css -o wwwroot/css/site.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.14",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "postcss-cli": "^10.1.0"
+  }
+}

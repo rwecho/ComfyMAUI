@@ -1,0 +1,20 @@
+﻿@inherits LayoutComponentBase
+@implements IDisposable
+<main>
+    @Body
+</main>
+
+@code{
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Console.WriteLine("MainLayout.razor OnInitialized");
+    }
+    public void Dispose()
+    {
+        Console.WriteLine("MainLayout.razor Dispose");
+    }
+
+}

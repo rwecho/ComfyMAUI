@@ -1,0 +1,33 @@
+﻿@page "/bottom"
+@using ComfyMAUI.Views
+@using CommunityToolkit.Maui.Core
+
+@inject NavigationService navigationService
+@inject GitService gitService
+@inject PythonService pythonService
+@inject IPopupService popupService
+
+<div class="overflow-x-hidden overflow-y-hidden h-[32px] w-full bg-gray-100 flex px-4 items-center justify-center">
+    <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoSettings">Settings</Button>
+
+    <Divider Type="DirectionVHType.Vertical"></Divider>
+    <span >@_gitVersion</span>
+    <Divider Type="DirectionVHType.Vertical"></Divider>
+    <span >python3 @_pythonVersion</span>
+    <Divider Type="DirectionVHType.Vertical"></Divider>
+    <span>comfyUI </span>
+</div>
+@code {
+    private string? _gitVersion, _pythonVersion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gitVersion = await gitService.GetVersion();
+        _pythonVersion = await pythonService.GetVersion();
+    }
+
+    private async Task GoSettings()
+    {
+        await navigationService.PushAsync(new Views.BlazorPage("/settings"));
+    }
+}

@@ -1,0 +1,44 @@
+﻿@inject GitService gitService
+
+<SkeletonBox OnLoad="Load">
+    <Skeleton>
+        <Card Title="Git 配置" Hoverable="true">
+            <Body>
+                <Skeleton Active="true"></Skeleton>
+            </Body>
+        </Card>
+    </Skeleton>
+    <ChildContent>
+        <Card Title="Git 配置" Hoverable="true">
+            <Extra>
+                @if (_gitVersion == null)
+                {
+                    <Flex Gap="small">
+                        <a href="https://registry.npmmirror.com/-/binary/git-for-windows/v2.39.0.windows.2/Git-2.39.0.2-64-bit.exe">下载</a>
+                    </Flex>
+                }
+            </Extra>
+
+            <Body>
+                <Row Gutter="16">
+                    <Col Span="8">
+                    <TextDisplay Title="版本" Value="@_gitVersion"></TextDisplay>
+                    </Col>
+                    <Col Span="16">
+                    <TextDisplay Title="安装位置" Value="@_gitInstallationPath"></TextDisplay>
+                    </Col>
+                </Row>
+            </Body>
+        </Card>
+    </ChildContent>
+</SkeletonBox>
+
+@code {
+    private string? _gitVersion, _gitInstallationPath;
+
+    private async Task Load()
+    {
+        _gitVersion = await gitService.GetVersion();
+        _gitInstallationPath = await gitService.GetInstallationPath();
+    }
+}

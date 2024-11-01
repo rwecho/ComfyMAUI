@@ -1,0 +1,219 @@
+﻿@using CommunityToolkit.Maui.Storage
+
+@inject PythonService pythonService
+@inject ComfyUIService comfyUIService
+@inject SettingsService settingsService
+@inject IMessageService message
+@inject INotificationService notice
+@inject Aria2JobManager aria2JobManager
+@inject ILogger<ComfyUIPythonSettingsCard> logger
+@implements IDisposable
+
+<SkeletonBox OnLoad="Load">
+    <Skeleton>
+        <Card Title="ComfyUI Python 配置" Hoverable="true">
+            <Body>
+                <Skeleton Active="true"></Skeleton>
+            </Body>
+        </Card>
+    </Skeleton>
+    <ChildContent>
+        <Card Title="ComfyUI Python 配置" Hoverable="true">
+            <Extra>
+                @if (_job == null)
+                {
+                    <Flex Gap="small">
+                        <InputGroup Compact>
+                            <AutoComplete Options="@(AvailableVersions)" @bind-Value="@selectedValue" Placeholder="Version" />
+                        </InputGroup>
+                        <Button Type="link" Icon="@IconType.Outline.CloudDownload" OnClick="DownloadComfyUI">下载</Button>
+                    </Flex>
+                }
+            </Extra>
+            <Body>
+                @if (_job == null)
+                {
+                    <Flex Gap="large">
+                        @if (_pythonVersion != null)
+                        {
+                            <TextDisplay Title="Python 版本" Value="@_pythonVersion"></TextDisplay>
+                        }
+                        <TextDisplay Title="ComfyUI 版本" Value="@_comfyUIVersion"></TextDisplay>
+                    </Flex>
+                    <Divider></Divider>
+                    <Alert Type="@AlertType.Warning" Message="请确保有大于500GB的磁盘空间" />
+                }
+                else
+                {
+                    if (_job.Status == null)
+                    {
+                        <Alert Type="@AlertType.Info" Message="准备下载 ComfyUI" />
+                    }
+                    else if (_job.Status.Status == "active")
+                    {
+                        var progress = _job.Status.CompletedLength * 1.0 / _job.Status.TotalLength;
+                        var speed = _job.Status.DownloadSpeed / 1024 / 1024;
+
+                        <Alert Type="@AlertType.Info" Message="正在下载 ComfyUI" />
+                        <Progress Percent="@(speed)" />
+                        <Flex Gap="small">
+                            <Statistic Title="下载速度" Value="speed" />
+                            <Statistic Title="已下载" Value="@(_job.Status.CompletedLength / 1024 / 1024)" Suffix="MB" />
+                            <Statistic Title="总大小" Value="@(_job.Status.TotalLength / 1024 / 1024)" Suffix="MB" />
+                        </Flex>
+                    }
+                    else if (_job.Status.Status == "complete")
+                    {
+                        <Alert Type="@AlertType.Success" Message="下载完成" />
+
+                        <Flex Gap="small">
+                            <Button Type="link" Icon="@IconType.Outline.FolderOpen" >打开文件夹</Button>
+                        </Flex>
+                    }
+                    else if (_job.Status.Status == "error")
+                    {
+                        <Alert Type="@AlertType.Error" Message="下载失败" />
+
+                        <Flex Gap="small">
+                            <Button Type="link" Icon="@IconType.Outline.CloudDownload" OnClick="ClearDownloadJob">清除</Button>
+                        </Flex>
+                    }
+                }
+            </Body>
+        </Card>
+    </ChildContent>
+</SkeletonBox>
+
+@code {
+
+    private bool _visible;
+
+    private string? _pythonVersion, _comfyUIVersion, selectedValue;
+
+    private ComfyUIPythonSettings _settings = new ComfyUIPythonSettings();
+
+    private List<string> AvailableVersions = ["0.2.7", "0.2.6", "0.2.5", "0.2.4", "0.2.3"];
+
+    private Subject<bool> _disposed = new();
+
+    private Aria2Job? _job;
+
+    private async Task Load()
+    {
+        _pythonVersion = await pythonService.GetVersion();
+        _comfyUIVersion = await comfyUIService.GetVersion();
+        _settings = await settingsService.Get<ComfyUIPythonSettings>(ComfyUIPythonSettings.Key) ?? new();
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        aria2JobManager.JobsStream
+            .Do(o =>
+            {
+                if (o?.Id != _settings.DownloadId)
+                {
+                    return;
+                }
+                _job = o;
+                InvokeAsync(StateHasChanged);
+            })
+            .TakeUntil(_disposed)
+            .Subscribe();
+        return base.OnInitializedAsync();
+    }
+
+
+
+    private string InstallationPath
+    {
+        get => _settings.InstallationPath;
+        set
+        {
+            _settings.InstallationPath = value;
+        }
+    }
+
+    private async Task Confirm()
+    {
+        try
+        {
+            await settingsService.Set(ComfyUIPythonSettings.Key, _settings);
+            _visible = false;
+
+            await message.Success("保存成功");
+        }
+        catch (Exception exception)
+        {
+            await notice.Error(new NotificationConfig
+                {
+                    Message = "保存失败",
+                    Description = exception.Message
+                });
+
+            logger.LogError(exception, "Failed to save python settings");
+        }
+    }
+
+    private void Cancel()
+    {
+        _visible = false;
+    }
+
+    private async Task ChooseFolder()
+    {
+        var result = await FolderPicker.Default.PickAsync(_settings.InstallationPath);
+
+        if (result.IsSuccessful)
+        {
+            _settings.InstallationPath = result.Folder.Path;
+
+            if (Directory.Exists(_settings.InstallationPath))
+            {
+                Directory.CreateDirectory(_settings.InstallationPath);
+            }
+        }
+    }
+
+    private async Task DownloadComfyUI()
+    {
+        if (string.IsNullOrEmpty(selectedValue))
+        {
+            await message.Error("请选择版本");
+            return;
+        }
+
+
+        var mirrorSettings = await settingsService.Get<MirrorSettings>(MirrorSettings.Key);
+
+        if (mirrorSettings?.GitHubMirror == null)
+        {
+            await message.Warning("请先配置 GitHub 镜像");
+            return;
+        }
+
+        var url = $"{mirrorSettings.GitHubMirror.TrimEnd('/')}/https://github.com/comfyanonymous/ComfyUI/releases/download/v{selectedValue}/ComfyUI_windows_portable_nvidia.7z";
+        var job = await aria2JobManager.AddJob(url);
+        _settings.DownloadId = job.Id;
+        await settingsService.Set(ComfyUIPythonSettings.Key, _settings);
+        await message.Success("下载任务已添加");
+    }
+
+    private async Task ClearDownloadJob()
+    {
+        if (_job == null)
+        {
+            return;
+        }
+        await aria2JobManager.RemoveJob(_job.Id);
+        _job = null;
+        _settings.DownloadId = null;
+        await settingsService.Set(ComfyUIPythonSettings.Key, _settings);
+        await message.Success("下载任务已清除");
+    }
+
+
+    public void Dispose()
+    {
+        _disposed.OnNext(true);
+    }
+}

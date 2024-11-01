@@ -1,0 +1,13 @@
+﻿<Flex Class="h-32" Vertical="true" Gap="large" Align="center">
+    <span class="text-gray-400 text-md">@Title</span>
+    <span class="text-gray-800 text-md">@Value</span>
+</Flex>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = null!;
+
+    [Parameter]
+    public string Value { get; set; } = null!;
+
+}

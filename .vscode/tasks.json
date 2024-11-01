@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "pnpm watch:css",
+      "options": {
+        "cwd": "${workspaceFolder}/src/ComfyMAUI.App"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "shell: pnpm watch BlazorApp"
+    }
+  ]
+}

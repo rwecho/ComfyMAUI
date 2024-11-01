@@ -1,0 +1,97 @@
+﻿@inject SettingsService settingsService
+@inject NvidiaService nvidiaService
+@inject IMessageService _message
+@inject INotificationService notice
+@inject ILogger<GpuSettingsCard> logger
+
+
+<SkeletonBox OnLoad="Load">
+    <Skeleton>
+        <Card Title="显卡或者CPU" Hoverable="true">
+            <Body>
+                <Skeleton Active="true"></Skeleton>
+            </Body>
+        </Card>
+    </Skeleton>
+    <ChildContent>
+        <Card Title="显卡或者CPU" Hoverable="true">
+            <Extra>
+            </Extra>
+            <Body>
+                <Row Gutter="16">
+                    <Col Span="8">
+                        <TextDisplay Title="Nvidia 版本" Value="@_gpuVersion"></TextDisplay>
+                    </Col>
+                </Row>
+                <Flex Vertical="true" Gap="small">
+                    <Flex Justify="space-between" Align="center">
+                        <label>显卡 或 CPU</label>
+                        <Flex Class="w-1/2" Align="center" Justify="end">
+                            <RadioGroup @bind-Value="GpuOrCpu">
+                                <Radio RadioButton Value="@("gpu")">Nvidia 显卡</Radio>
+                                <Radio RadioButton Value="@("cpu")">CPU</Radio>
+                            </RadioGroup>
+                        </Flex>
+                    </Flex>
+                </Flex>
+                <Divider></Divider>
+                <Flex Justify="end">
+                    <Popconfirm Title="确认修改吗?"
+                    Visible="_visible"
+                    OnConfirm="Confirm"
+                    OnCancel="Cancel"
+                    OkText="Yes"
+                    CancelText="No">
+                        <Button Type="primary" Size="small" Class="text-gray-400">保存</Button>
+                    </Popconfirm>
+                </Flex>
+            </Body>
+        </Card>
+    </ChildContent>
+</SkeletonBox>
+@code {
+    private string? _gpuVersion;
+
+    private GpuSettings _gpuSettings = new();
+    private bool _visible = false;
+
+
+    private async Task Load()
+    {
+        _gpuVersion = await nvidiaService.GetVersion();
+        _gpuSettings = await settingsService.Get<GpuSettings>(GpuSettings.Key) ?? new();
+    }
+
+
+    private string GpuOrCpu
+    {
+        get => _gpuSettings.GpuOrCpu;
+        set => _gpuSettings.GpuOrCpu = value;
+    }
+
+    private async Task Confirm()
+    {
+        try
+        {
+            await settingsService.Set(GpuSettings.Key, _gpuSettings);
+            await _message.Success("保存成功");
+            _visible = false;
+        }
+        catch (Exception exception)
+        {
+            await notice.Error(new NotificationConfig
+                {
+                    Message = "保存失败",
+                    Description = exception.Message
+                });
+
+            logger.LogError(exception, "Failed to save gpu settings");
+        }
+    }
+
+    private void Cancel()
+    {
+        _visible = false;
+    }
+
+}
