@@ -2,6 +2,12 @@
 
 ComfyMAUI 是一个基于 .NET MAUI 开发的 ComfyUI 桌面客户端应用程序。它提供了一个友好的图形界面来管理和使用 ComfyUI。
 
+## 快速预览
+
+[![ComfyMAUI 介绍视频](https://img.youtube.com/vi/1LHs6dPKF68/0.jpg)](https://www.youtube.com/watch?v=1LHs6dPKF68)
+
+👆 点击观看 ComfyMAUI 介绍视频
+
 ## 功能特点
 
 - 🖥️ 跨平台支持 
