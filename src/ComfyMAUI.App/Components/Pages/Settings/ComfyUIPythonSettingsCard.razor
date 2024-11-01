@@ -1,4 +1,5 @@
 ﻿@using CommunityToolkit.Maui.Storage
+@using SevenZipExtractor
 
 @inject PythonService pythonService
 @inject ComfyUIService comfyUIService
@@ -51,15 +52,14 @@
                     }
                     else if (_job.Status.Status == "active")
                     {
-                        var progress = _job.Status.CompletedLength * 1.0 / _job.Status.TotalLength;
-                        var speed = _job.Status.DownloadSpeed / 1024 / 1024;
+                        var progress = (int)(_job.Status.CompletedLength * 1.0 / _job.Status.TotalLength * 100);
 
                         <Alert Type="@AlertType.Info" Message="正在下载 ComfyUI" />
-                        <Progress Percent="@(speed)" />
+                        <Progress Percent="@(progress)" />
                         <Flex Gap="small">
-                            <Statistic Title="下载速度" Value="speed" />
-                            <Statistic Title="已下载" Value="@(_job.Status.CompletedLength / 1024 / 1024)" Suffix="MB" />
-                            <Statistic Title="总大小" Value="@(_job.Status.TotalLength / 1024 / 1024)" Suffix="MB" />
+                            <TextDisplay Title="下载速度" Value="@_job.Status.DownloadSpeed.ToHumanReadable()" />
+                            <TextDisplay Title="已下载" Value="@(_job.Status.CompletedLength.ToHumanReadable())" />
+                            <TextDisplay Title="总大小" Value="@(_job.Status.TotalLength.ToHumanReadable())" />
                         </Flex>
                     }
                     else if (_job.Status.Status == "complete")
@@ -67,7 +67,7 @@
                         <Alert Type="@AlertType.Success" Message="下载完成" />
 
                         <Flex Gap="small">
-                            <Button Type="link" Icon="@IconType.Outline.FolderOpen" >打开文件夹</Button>
+                            <Button Type="link" Icon="@IconType.Outline.Setting" OnClick="Setup">安装</Button>
                         </Flex>
                     }
                     else if (_job.Status.Status == "error")
@@ -88,7 +88,7 @@
 
     private bool _visible;
 
-    private string? _pythonVersion, _comfyUIVersion, selectedValue;
+    private string? _pythonVersion, _comfyUIVersion, selectedValue = "0.2.6";
 
     private ComfyUIPythonSettings _settings = new ComfyUIPythonSettings();
 
@@ -204,11 +204,46 @@
         {
             return;
         }
-        await aria2JobManager.RemoveJob(_job.Id);
-        _job = null;
-        _settings.DownloadId = null;
-        await settingsService.Set(ComfyUIPythonSettings.Key, _settings);
-        await message.Success("下载任务已清除");
+
+        try
+        {
+            await aria2JobManager.RemoveJob(_job.Id);
+            _job = null;
+            _settings.DownloadId = null;
+            await settingsService.Set(ComfyUIPythonSettings.Key, _settings);
+            await message.Success("下载任务已清除");
+        }
+        catch (Exception exception)
+        {
+            await notice.Error(new NotificationConfig
+                {
+                    Message = "清除失败",
+                    Description = exception.Message
+                });
+        }
+    }
+
+
+    private async Task Setup()
+    {
+        if (_job == null)
+        {
+            return;
+        }
+
+        if (_job.Status?.Status != "complete")
+        {
+            await message.Warning("下载未完成");
+            return;
+        }
+
+        var filePath = _job.DownloadFilePath;
+
+        using var archiveFile = new ArchiveFile(filePath);
+        foreach (var entry in archiveFile.Entries)
+        {
+            entry.Extract(entry.FileName);
+        }
     }
 
 

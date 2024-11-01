@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-
-namespace ComfyMAUI.Services;
+﻿namespace ComfyMAUI.Services;
 
 public class Aria2JobManagerHostedService(Aria2JobManager aria2JobManager) : IHostedService
 {
@@ -25,7 +23,7 @@ public class Aria2JobManagerHostedService(Aria2JobManager aria2JobManager) : IHo
                 // ignored
             }
 
-            await Task.Delay(1000, cancellationToken);
+            await Task.Delay(200, cancellationToken);
         }
     }
 

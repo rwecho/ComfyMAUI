@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI.Services;
 
-public class GitService: ITransientDependency
+public class GitService
 {
     public async Task<string> GetVersion()
     {

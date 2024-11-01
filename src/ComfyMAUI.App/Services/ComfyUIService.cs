@@ -1,8 +1,7 @@
-﻿using Volo.Abp.DependencyInjection;
-
+﻿
 namespace ComfyMAUI.Services;
 
-public class ComfyUIService: ITransientDependency
+public class ComfyUIService
 {
 
     public async Task<string> GetVersion()

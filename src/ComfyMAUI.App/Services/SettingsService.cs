@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI.Services;
 
@@ -26,7 +25,7 @@ public class GpuSettings
     public string GpuOrCpu { get; set; } = "gpu";
 }
 
-public class SettingsService: ISingletonDependency
+public class SettingsService
 {
     private Dictionary<string, string> _settings = [];
     private readonly Task _task;

@@ -1,10 +1,4 @@
-﻿using Aria2NET;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
-using Volo.Abp.DependencyInjection;
-
-namespace ComfyMAUI.Services;
+﻿namespace ComfyMAUI.Services;
 
 public class Aria2cOptions
 {
@@ -14,4 +8,3 @@ public class Aria2cOptions
 
     public bool ListenAll { get; set; }
 }
-

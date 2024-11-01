@@ -2,11 +2,10 @@
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI.Services;
 
-public class Aria2JobManager(IOptions<Aria2cOptions> options) : ISingletonDependency
+public class Aria2JobManager(IOptions<Aria2cOptions> options) 
 {
     private readonly Aria2NetClient aria2NetClient = new($"http://127.0.0.1:{options.Value.ListenPort}/jsonrpc");
 
@@ -20,9 +19,17 @@ public class Aria2JobManager(IOptions<Aria2cOptions> options) : ISingletonDepend
         var filename = Path.GetFileName(url);
         var id = await aria2NetClient.AddUriAsync([url], new Dictionary<string, object>()
             {
-                 { "dir", "abc"}
+                 { "dir", "downloads"}
             }, 0);
-        var job = new Aria2Job(id, url, filename);
+
+        var fullFilePath = Path.Combine("downloads", filename);
+
+        if (File.Exists(fullFilePath))
+        {
+            File.Delete(fullFilePath);
+        }
+
+        var job = new Aria2Job(id, url, filename, fullFilePath);
         Jobs.TryAdd(id, job);
         return job;
     }

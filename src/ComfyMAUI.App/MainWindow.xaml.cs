@@ -1,10 +1,9 @@
 using ComfyMAUI.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI;
 
-public partial class MainWindow : Window, ITransientDependency
+public partial class MainWindow : Window
 {
 	public MainWindow(MainPage mainPage, MainWindowViewModel viewModel)
 	{
@@ -13,7 +12,7 @@ public partial class MainWindow : Window, ITransientDependency
 	}
 }
 
-public partial class MainWindowViewModel: ObservableObject, ITransientDependency
+public partial class MainWindowViewModel: ObservableObject
 {
 
     [ObservableProperty]

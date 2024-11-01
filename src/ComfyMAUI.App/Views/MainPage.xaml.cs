@@ -1,10 +1,9 @@
 ﻿using ComfyMAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI.Views;
 
-public partial class MainPage : ContentPage, ITransientDependency
+public partial class MainPage : ContentPage
 {
     public MainPage(MainPageViewModel viewModel)
     {
@@ -14,7 +13,7 @@ public partial class MainPage : ContentPage, ITransientDependency
 }
 
 
-public partial class MainPageViewModel : ObservableObject, ITransientDependency
+public partial class MainPageViewModel : ObservableObject
 {
     public MainPageViewModel(ComfyUIService comfyUIService, NavigationService navigationService)
     {

@@ -1,10 +1,9 @@
 ﻿
 using System.Diagnostics;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI.Services;
 
-public class NavigationService:ITransientDependency
+public class NavigationService
 {
     public async Task PushAsync(Page page)
     {

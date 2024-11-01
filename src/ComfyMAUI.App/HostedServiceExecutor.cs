@@ -1,9 +1,14 @@
-﻿using Microsoft.Extensions.Hosting;
-using Volo.Abp.DependencyInjection;
+﻿namespace ComfyMAUI;
 
-namespace ComfyMAUI;
+public interface IHostedService
+{
+    Task StartAsync(CancellationToken token);
 
-public class HostedServiceExecutor(IEnumerable<IHostedService> services): ITransientDependency
+    Task StopAsync(CancellationToken token);
+
+}
+
+public class HostedServiceExecutor(IEnumerable<IHostedService> services)
 {
     private Task? _startTask;
 

@@ -1,10 +1,9 @@
 ﻿
 using System.Diagnostics;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI.Services;
 
-public class PythonService: ITransientDependency
+public class PythonService
 {
     public async Task<string> GetVersion()
     {

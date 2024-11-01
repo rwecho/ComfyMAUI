@@ -1,10 +1,9 @@
 ﻿
 using System.Diagnostics;
-using Volo.Abp.DependencyInjection;
 
 namespace ComfyMAUI.Services;
 
-public class NvidiaService: ITransientDependency
+public class NvidiaService
 {
     public async Task<string> GetVersion()
     {

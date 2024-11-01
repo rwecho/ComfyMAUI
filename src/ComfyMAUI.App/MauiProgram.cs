@@ -1,13 +1,10 @@
-﻿using ComfyMAUI.Services;
-using ComfyMAUI.Views;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
 using Serilog;
+using Serilog.Events;
 using System.Reflection;
-using Volo.Abp;
-using Volo.Abp.Autofac;
 
 namespace ComfyMAUI;
 
@@ -15,8 +12,9 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        Log.Information("Starting app.");
-        Log.Information("Current directory: {CurrentDirectory}", AppContext.BaseDirectory);
+        SetupSerilog();
+
+        var startUp = new Startup();
 
         var builder = MauiApp.CreateBuilder();
         builder
@@ -26,29 +24,67 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             })
-            .ConfigureContainer(new AbpAutofacServiceProviderFactory(new Autofac.ContainerBuilder()));
+            .ConfigureLifecycleEvents(events =>
+            {
+#if WINDOWS
+                events.AddWindows(windows => windows
+                    .OnActivated ((Window,args)=> LogEvent(nameof(WindowsLifecycle.OnActivated)))
+                    .OnClosed((Window, args) => 
+                    {
+                        LogEvent(nameof(WindowsLifecycle.OnClosed));
 
+                        // Shutdown the application
+                        startUp.OnApplicationShutdown();
+                    })
+                    .OnLaunched((Window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunched)))
+                    .OnLaunching((Window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunching)))
+                    .OnVisibilityChanged((Window, args) => LogEvent(nameof(WindowsLifecycle.OnVisibilityChanged)))
+                    .OnPlatformMessage((Window, args) =>
+                    {
+                        if(args.MessageId == Convert.ToUInt32("031A",16))
+                        {
+                            // System theme has changed.
+                        }
+                    })
+                );
+#endif
+            });
         ConfigureConfiguration(builder);
-
-        builder.Services.AddApplication<ComfyMAUIAppModule>(options =>
-        {
-            options.Services.ReplaceConfiguration(builder.Configuration);
-        });
-
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
 #endif
+        builder.Logging.AddSerilog(dispose: true);
 
+        startUp.ConfigureServices(builder.Configuration, builder.Services);
         var app = builder.Build();
-        app.Services.GetRequiredService<IAbpApplicationWithExternalServiceProvider>().InitializeAsync(app.Services).Wait();
+        startUp.OnApplicationInitialization(app.Services);
+
         return app;
+    }
+
+    private static void LogEvent(string eventName, string? type = null)
+    {
+        Log.Logger.Information($"Event: {eventName} {type}");
     }
 
     private static void ConfigureConfiguration(MauiAppBuilder builder)
     {
         var assembly = typeof(App).GetTypeInfo().Assembly;
         builder.Configuration.AddJsonFile("appsettings.json", optional: false, false);
+    }
+
+    private static void SetupSerilog()
+    {
+        var flushInterval = new TimeSpan(0, 0, 1);
+        var file = Path.Combine(FileSystem.AppDataDirectory, "ComfyMAUI.log");
+
+        Log.Logger = new LoggerConfiguration()
+        .MinimumLevel.Verbose()
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+        .Enrich.FromLogContext()
+        .WriteTo.File(file, flushToDiskInterval: flushInterval, encoding: System.Text.Encoding.UTF8, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 22)
+        .CreateLogger();
     }
 }
 
