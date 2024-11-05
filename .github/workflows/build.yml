@@ -98,13 +98,29 @@ jobs:
 #        zip -r ../ComfyMAUI-macOS.zip .
 #        cd ..
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          ComfyMAUI-Windows.zip
-#          ComfyMAUI-macOS.zip
-        draft: false
-        prerelease: false
+#     - name: Create Release
+#       uses: softprops/action-gh-release@v1
+#       with:
+#         files: |
+#           ComfyMAUI-Windows.zip
+# #          ComfyMAUI-macOS.zip
+#         draft: false
+#         prerelease: false
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload to Minio
+      run: |
+        curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o ~/mc
+        chmod +x ~/mc
+        ~/mc --version
+        ~/mc alias set comfy-maui ${{ env.MINIO_SERVER }} ${{ env.MINIO_ACCESS_KEY }} ${{ env.MINIO_SECRET_KEY }}
+        ~/mc mb comfy-maui/comfy-maui
+        ~/mc cp ComfyMAUI-Windows.zip comfy-maui/comfy-maui
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MINIO_SERVER: ${{ secrets.MINIO_SERVER }}
+        MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+        MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+
+        
+
