@@ -2,7 +2,7 @@
 
 namespace ComfyMAUI.Services;
 
-public class GitService
+public class GitService(ProcessService processService)
 {
     public async Task<string> GetVersion()
     {
@@ -48,5 +48,10 @@ public class GitService
 #else
     throw new NotSupportedException();
 #endif
+    }
+
+    public async Task Clone(string url, string workingFolder, Action<string?> action)
+    {
+        await processService.Start("git", $"clone {url}", workingFolder, action);
     }
 }

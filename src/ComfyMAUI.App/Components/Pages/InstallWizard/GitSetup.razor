@@ -1,0 +1,40 @@
+﻿@inject GitService gitService
+<SkeletonBox OnLoad="Load">
+    <Skeleton>
+        <Skeleton Active="true"></Skeleton>
+    </Skeleton>
+    <ChildContent>
+        <Row Gutter="16" Class="m-4 flex-1">
+            <Col Span="8">
+                <TextDisplay Title="版本" Value="@_gitVersion"></TextDisplay>
+            </Col>
+            <Col Span="16">
+                <TextDisplay Title="安装位置" Value="@_gitInstallationPath"></TextDisplay>
+            </Col>
+        </Row>
+
+
+        <Divider></Divider>
+        <div class="flex justify-between">
+
+            @if (string.IsNullOrEmpty(_gitVersion))
+            {
+                <a href="https://registry.npmmirror.com/-/binary/git-for-windows/v2.39.0.windows.2/Git-2.39.0.2-64-bit.exe">下载Git</a>
+            }
+
+            <Button Class="ml-auto" Type="primary" Disabled="!(ViewModel.CanNext && !string.IsNullOrEmpty(_gitVersion))" OnClick="ViewModel.OnNext">下一步</Button>
+        </div>
+    </ChildContent>
+</SkeletonBox>
+@code {
+    [CascadingParameter]
+    public InstallWizardViewModel ViewModel { get; set; } = null!;
+
+    private string? _gitVersion, _gitInstallationPath;
+
+    private async Task Load()
+    {
+        _gitVersion = await gitService.GetVersion();
+        _gitInstallationPath = await gitService.GetInstallationPath();
+    }
+}

@@ -21,15 +21,7 @@ public class Aria2JobManager(IOptions<Aria2cOptions> options)
             {
                  { "dir", "downloads"}
             }, 0);
-
-        var fullFilePath = Path.Combine("downloads", filename);
-
-        if (File.Exists(fullFilePath))
-        {
-            File.Delete(fullFilePath);
-        }
-
-        var job = new Aria2Job(id, url, filename, fullFilePath);
+        var job = new Aria2Job(id, url, filename);
         Jobs.TryAdd(id, job);
         return job;
     }
@@ -47,8 +39,14 @@ public class Aria2JobManager(IOptions<Aria2cOptions> options)
             {
                 var status = await aria2NetClient.TellStatusAsync(job.Id);
                 job.Status = status;
+
+                JobsStream.OnNext(job);
             }
-            JobsStream.OnNext(job);
+
+            if (job.Status?.Status == "complete")
+            {
+                JobsStream.OnCompleted();
+            }
         }
     }
 

@@ -1,0 +1,30 @@
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:popups="clr-namespace:ComfyMAUI.Views.Popups"
+               xmlns:local="clr-namespace:ComfyMAUI"
+               x:Class="ComfyMAUI.Views.Popups.SettingsPopup"
+               CanBeDismissedByTappingOutsideOfPopup="False"
+               x:DataType="popups:SettingsPopupViewModel"
+               Size="{Binding Size }"
+               >
+    <toolkit:Popup.Resources>
+        <Style TargetType="{x:Type popups:SettingsPopup}">
+            <Setter Property="Color" Value="Transparent" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="CanBeDismissedByTappingOutsideOfPopup" Value="True" />
+        </Style>
+    </toolkit:Popup.Resources>
+
+    <Border Padding="0" Stroke="Transparent">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="4"></RoundRectangle>
+        </Border.StrokeShape>
+        <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html" StartPath="/install-wizard">
+            <BlazorWebView.RootComponents>
+                <RootComponent x:Name="rootComponent" Selector="#app" ComponentType="{x:Type local:Components.Routes}"/>
+            </BlazorWebView.RootComponents>
+        </BlazorWebView>
+    </Border>
+</toolkit:Popup>

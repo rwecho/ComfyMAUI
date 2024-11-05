@@ -1,4 +1,4 @@
-﻿<Flex Class="h-24" Vertical="true" Gap="large" Align="center">
+﻿<Flex Vertical="@IsVertical" Gap="large" Align="center">
     <span class="text-gray-400 text-md">@Title</span>
     <span class="text-gray-800 text-md">@Value</span>
 </Flex>
@@ -9,5 +9,8 @@
 
     [Parameter]
     public string Value { get; set; } = null!;
+
+    [Parameter]
+    public bool IsVertical { get; set; } = true;
 
 }

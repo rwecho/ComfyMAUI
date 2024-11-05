@@ -24,11 +24,11 @@ public partial class MainPageViewModel : ObservableObject
 
     private async Task Load()
     {
-        this.ComfyUIVersion = await ComfyUIService.GetVersion();
+        this.ComfyUIVersion = await ComfyUIService.GetComfyUIVersion();
     }
 
     [ObservableProperty]
-    private string? _url, _comfyUIVersion;
+    private string? _url = "http://127.0.0.1:8188", _comfyUIVersion;
 
 
     public ComfyUIService ComfyUIService { get; }

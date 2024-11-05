@@ -1,4 +1,6 @@
-﻿namespace ComfyMAUI.Services;
+﻿using System.Reactive.Linq;
+
+namespace ComfyMAUI.Services;
 
 public class Aria2cOptions
 {

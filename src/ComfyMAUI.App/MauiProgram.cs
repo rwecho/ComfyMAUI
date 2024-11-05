@@ -32,16 +32,16 @@ public static class MauiProgram
                     .OnClosed((Window, args) => 
                     {
                         LogEvent(nameof(WindowsLifecycle.OnClosed));
-
                         // Shutdown the application
-                        startUp.OnApplicationShutdown();
+
+                        //startUp.OnApplicationShutdown().Wait();
                     })
                     .OnLaunched((Window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunched)))
                     .OnLaunching((Window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunching)))
                     .OnVisibilityChanged((Window, args) => LogEvent(nameof(WindowsLifecycle.OnVisibilityChanged)))
                     .OnPlatformMessage((Window, args) =>
                     {
-                        if(args.MessageId == Convert.ToUInt32("031A",16))
+                        if (args.MessageId == Convert.ToUInt32("031A", 16))
                         {
                             // System theme has changed.
                         }

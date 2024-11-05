@@ -9,15 +9,15 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="32" />
+            <!--<RowDefinition Height="32" />-->
         </Grid.RowDefinitions>
-        <!--<WebView Source="{Binding Url}" />-->
-        <WebView Source="http://192.168.1.220:8188" />
+        <WebView Source="{Binding Url}" />
+        <!--<WebView Source="http://192.168.1.220:8188" />-->
 
-        <BlazorWebView  Grid.Row="1" x:Name="blazorWebView" HostPage="wwwroot/index.html" StartPath="/bottom"   >
+        <!--<BlazorWebView  Grid.Row="1" x:Name="blazorWebView" HostPage="wwwroot/index.html" StartPath="/bottom"   >
             <BlazorWebView.RootComponents >
                 <RootComponent Selector="#app" ComponentType="{x:Type local:Components.Routes}"   />
             </BlazorWebView.RootComponents>
-        </BlazorWebView>
+        </BlazorWebView>-->
     </Grid>
 </ContentPage>

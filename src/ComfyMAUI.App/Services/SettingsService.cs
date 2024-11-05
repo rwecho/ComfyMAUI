@@ -6,17 +6,33 @@ public class MirrorSettings
 {
     public const string Key = "mirror_settings";
 
-    public string GitHubMirror { get; set; } = "https://mirror.ghproxy.com/";
-    public string PipMirror { get; set; } = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple";
-    public string HuggingFaceMirror { get; set; } = "https://hf-mirror.com";
+    public virtual string GitHubMirror { get; set; } = "https://mirror.ghproxy.com/";
+    public virtual string PipMirror { get; set; } = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple";
+    public virtual string HuggingFaceMirror { get; set; } = "https://hf-mirror.com";
 }
 
 public class ComfyUIPythonSettings
 {
-    public const string Key = "python_settings";
-    public string InstallationPath{ get; set; } = "bin";
+    public const string Key = "comfyui_settings";
+    public virtual string InstallationPath { get; set; } = "bin";
 
-    public string? DownloadId { get; set; }
+    public virtual string? DownloadId { get; set; }
+
+    public string PythonFolder
+    {
+        get
+        {
+            return Path.Combine(InstallationPath, "python_embeded");
+        }
+    }
+
+    public string ComfyUIFolder
+    {
+        get
+        {
+            return Path.Combine(InstallationPath, "ComfyUI");
+        }
+    }
 }
 
 public class GpuSettings

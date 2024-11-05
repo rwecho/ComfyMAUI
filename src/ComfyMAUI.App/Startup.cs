@@ -1,5 +1,7 @@
-﻿using ComfyMAUI.Services;
+﻿using ComfyMAUI.Components.Pages.InstallWizard;
+using ComfyMAUI.Services;
 using ComfyMAUI.Views;
+using ComfyMAUI.Views.Popups;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 
@@ -19,8 +21,13 @@ public class Startup
         services.AddTransient<NavigationService>();
         services.AddTransient<NvidiaService>();
         services.AddTransient<PythonService>();
-        services.AddTransient<SettingsService>();
+        services.AddSingleton<SettingsService>();
         services.AddTransient<HostedServiceExecutor>();
+        services.AddTransient<ComfyNodesService>();
+        services.AddTransient<ProcessService>();
+        
+        
+        services.AddTransient<InstallWizardViewModel>();
 
 
         services.AddAntDesign();
@@ -35,6 +42,7 @@ public class Startup
 
         services.AddHostedService<Aria2ServerHosedService>();
         services.AddHostedService<Aria2JobManagerHostedService>();
+        services.AddHostedService<ComfyProcessHostedService>();
 
         services.Configure<Aria2cOptions>(configuration.GetSection("Aria2c").Bind);
     }
@@ -45,9 +53,11 @@ public class Startup
         _serviceExecutor.StartAsync(_cts.Token).Wait();
     }
 
-    public void OnApplicationShutdown()
+    public async Task OnApplicationShutdown()
     {
-        _serviceExecutor?.StopAsync(_cts.Token).Wait();
+        if (_serviceExecutor == null) return;
+
+        await _serviceExecutor.StopAsync(_cts.Token);
     }
 }
 

@@ -7,6 +7,7 @@ public class Aria2ServerHosedService(IOptions<Aria2cOptions> options) : IHostedS
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
+#if !__IOS__
         var arguments = $"--enable-rpc {(options.Value.ListenAll ? "--rpc-listen-all" : "")} --rpc-listen-port={options.Value.ListenPort}";
 
         var process = new Process
@@ -22,6 +23,7 @@ public class Aria2ServerHosedService(IOptions<Aria2cOptions> options) : IHostedS
         };
 
         process.Start();
+#endif
         return Task.CompletedTask;
     }
 

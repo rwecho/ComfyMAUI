@@ -1,0 +1,203 @@
+[
+  {
+    "Name": "ComfyUI-Manager",
+    "GitUrl": "https://github.com/ltdrdata/ComfyUI-Manager.git",
+    "GroupName": "基础节点",
+    "IsChecked": true
+  },
+  {
+    "Name": "AIGODLIKE-ComfyUI-Translation",
+    "GitUrl": "https://github.com/AIGODLIKE/AIGODLIKE-ComfyUI-Translation.git",
+    "GroupName": "工作空间",
+    "IsChecked": true
+  },
+  {
+    "Name": "ComfyUI-Crystools",
+    "GitUrl": "https://github.com/crystian/ComfyUI-Crystools.git",
+    "GroupName": "工作空间",
+    "IsChecked": true
+  },
+  {
+    "Name": "ComfyUI-Crystools-save",
+    "GitUrl": "https://github.com/crystian/ComfyUI-Crystools-save.git",
+    "GroupName": "工作空间",
+    "IsChecked": true
+  },
+
+  {
+    "Name": "mikey_nodes",
+    "GitUrl": "https://github.com/bash-j/mikey_nodes.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+  {
+    "Name": "cg-use-everywhere",
+    "GitUrl": "https://github.com/chrisgoringe/cg-use-everywhere.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+  {
+    "Name": "ComfyUI_essentials",
+    "GitUrl": "https://github.com/cubiq/ComfyUI_essentials.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+  {
+    "Name": "efficiency-nodes-comfyui",
+    "GitUrl": "https://github.com/jags111/efficiency-nodes-comfyui.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+  {
+    "Name": "ComfyUI-KJNodes",
+    "GitUrl": "https://github.com/kijai/ComfyUI-KJNodes.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+  {
+    "Name": "ComfyUI-Custom-Scripts",
+    "GitUrl": "https://github.com/pythongosssss/ComfyUI-Custom-Scripts.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+  {
+    "Name": "rgthree-comfy",
+    "GitUrl": "https://github.com/rgthree/rgthree-comfy.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+  {
+    "Name": "ComfyUI_smZNodes",
+    "GitUrl": "https://github.com/shiimizu/ComfyUI_smZNodes.git",
+    "GroupName": "综合",
+    "IsChecked": true
+  },
+
+  {
+    "Name": "ComfyUI_InstantID",
+    "GitUrl": "https://github.com/cubiq/ComfyUI_InstantID.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+
+  {
+    "Name": "ComfyUI_IPAdapter_plus",
+    "GitUrl": "https://github.com/cubiq/ComfyUI_IPAdapter_plus.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "comfyui_controlnet_aux",
+    "GitUrl": "https://github.com/Fannovel16/comfyui_controlnet_aux.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "comfyui-portrait-master",
+    "GitUrl": "https://github.com/florestefano1975/comfyui-portrait-master.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "comfyui-reactor-node",
+    "GitUrl": "https://github.com/Gourieff/comfyui-reactor-node.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-layerdiffuse",
+    "GitUrl": "https://github.com/huchenlei/ComfyUI-layerdiffuse.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-Advanced-ControlNet",
+    "GitUrl": "https://github.com/Kosinkadink/ComfyUI-Advanced-ControlNet.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-Impact-Pack",
+    "GitUrl": "https://github.com/ltdrdata/ComfyUI-Impact-Pack.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-Inspire-Pack",
+    "GitUrl": "https://github.com/ltdrdata/ComfyUI-Inspire-Pack.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "sd-dynamic-thresholding",
+    "GitUrl": "https://github.com/mcmonkeyprojects/sd-dynamic-thresholding.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "comfyui_segment_anything",
+    "GitUrl": "https://github.com/storyicon/comfyui_segment_anything.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "sdxl_prompt_styler",
+    "GitUrl": "https://github.com/twri/sdxl_prompt_styler.git",
+    "GroupName": "控制",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-Frame-Interpolation",
+    "GitUrl": "https://github.com/Fannovel16/ComfyUI-Frame-Interpolation.git",
+    "GroupName": "视频",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI_FizzNodes",
+    "GitUrl": "https://github.com/FizzleDorf/ComfyUI_FizzNodes.git",
+    "GroupName": "视频",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-AnimateDiff-Evolved",
+    "GitUrl": "https://github.com/Kosinkadink/ComfyUI-AnimateDiff-Evolved.git",
+    "GroupName": "视频",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-VideoHelperSuite",
+    "GitUrl": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git",
+    "GroupName": "视频",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-AnimateAnyone-Evolved",
+    "GitUrl": "https://github.com/MrForExample/ComfyUI-AnimateAnyone-Evolved.git",
+    "GroupName": "视频",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI_FaceAnalysis",
+    "GitUrl": "https://github.com/cubiq/ComfyUI_FaceAnalysis.git",
+    "GroupName": "更多",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-WD14-Tagger",
+    "GitUrl": "https://github.com/pythongosssss/ComfyUI-WD14-Tagger.git",
+    "GroupName": "更多",
+    "IsChecked": false
+  },
+  {
+    "Name": "ComfyUI-Image-Selector",
+    "GitUrl": "https://github.com/SLAPaper/ComfyUI-Image-Selector.git",
+    "GroupName": "更多",
+    "IsChecked": false
+  },
+  {
+    "Name": "was-node-suite-comfyui",
+    "GitUrl": "https://github.com/WASasquatch/was-node-suite-comfyui.git",
+    "GroupName": "WAS",
+    "IsChecked": false
+  }
+] 

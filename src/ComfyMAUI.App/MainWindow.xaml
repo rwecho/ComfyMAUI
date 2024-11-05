@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Window xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<Window xmlns="http://schemas.microsoft.com/dotnet/2021/maui"   
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:ComfyMAUI.Views"
              xmlns:local="clr-namespace:ComfyMAUI"
              xmlns:d="http://schemas.microsoft.com/dotnet/2021/maui/design"
              x:Class="ComfyMAUI.MainWindow"
-        x:DataType="local:MainWindowViewModel"
-        Title="{Binding Title}">
+             x:DataType="local:MainWindowViewModel"
+             Width="{Binding Width, Mode=OneWayToSource}"
+             Height="{Binding Height, Mode=OneWayToSource}"
+        >
+
+    <Window.TitleBar>
+        <TitleBar x:Name="titleBar"
+            Title="{Binding Title}"
+            Subtitle="{Binding Subtitle}"
+            IsVisible="{Binding ShowTitleBar}"    
+            BackgroundColor="#f8f8f8"
+            HeightRequest="32">
+            <TitleBar.TrailingContent>
+                <HorizontalStackLayout Padding="0,2" Spacing="8" BindingContext="{Binding Source={RelativeSource AncestorType={x:Type Window}}, Path=BindingContext}">
+                    <Button Text="配置" BorderWidth="0" Background="Transparent" 
+                            Command="{Binding GoSettingsCommand}">
+                    </Button>
+                </HorizontalStackLayout>
+            </TitleBar.TrailingContent>
+        </TitleBar>
+    </Window.TitleBar>
 </Window>

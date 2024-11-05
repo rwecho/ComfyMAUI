@@ -1,0 +1,50 @@
+﻿<SkeletonBox OnLoad="Load">
+    <Skeleton>
+        <Skeleton Active="true"></Skeleton>
+    </Skeleton>
+    <ChildContent>
+        <Flex Vertical="true" Gap="small" Class="m-4 flex-1">
+            <Flex Justify="space-between" Align="center">
+                <label class="font-bold">GitHub 镜像地址</label>
+                <Flex Class="w-1/2">
+                    <Input Placeholder="GitHub" @bind-Value="@ViewModel.GitHubMirror" DebounceMilliseconds="100">
+                    <AddOnAfter><Icon Type="github"></Icon></AddOnAfter>
+                    </Input>
+                </Flex>
+            </Flex>
+            <Flex Justify="space-between" Align="center">
+                <label>HuggingFace 镜像地址</label>
+                <Flex Class="w-1/2">
+                    <Input Placeholder="HuggingFace" @bind-Value="@(ViewModel.HuggingFaceMirror)" DebounceMilliseconds="100">
+                    <AddOnAfter><Icon Type="thunderbolt"></Icon></AddOnAfter>
+                    </Input>
+                </Flex>
+            </Flex>
+
+            <Flex Justify="space-between" Align="center">
+                <label>Pip 镜像地址</label>
+                <Flex Class="w-1/2">
+                    <Input Placeholder="Pip" @bind-Value="@(ViewModel.PipMirror)" DebounceMilliseconds="100">
+                    <AddOnAfter><Icon Type="node-index"></Icon></AddOnAfter>
+                    </Input>
+                </Flex>
+            </Flex>
+        </Flex>
+        <Divider></Divider>
+        <div class="flex justify-between">
+            <Button Class="ml-auto" Type="primary" Disabled="!ViewModel.CanNext" OnClick="ViewModel.OnNext">下一步</Button>
+        </div>
+    </ChildContent>
+</SkeletonBox>
+
+
+@code {
+    [CascadingParameter]
+    public InstallWizardViewModel ViewModel { get; set; }
+
+
+    private async Task Load()
+    {
+        await ViewModel.LoadMirrors();
+    }
+}

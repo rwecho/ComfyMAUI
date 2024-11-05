@@ -1,0 +1,223 @@
+﻿@using CommunityToolkit.Maui.Storage
+@using System.Collections.Concurrent
+@using System.Reactive
+@inject ComfyUIService comfyUIService
+@inject IMessageService message
+@implements IDisposable
+<SkeletonBox OnLoad="Load" @ref="_skeletonBox">
+    <Skeleton>
+        <Skeleton Active="true"></Skeleton>
+    </Skeleton>
+    <ChildContent>
+        <Flex Vertical="true" Gap="small" Class="m-4 flex-1">
+            <Flex Justify="space-between" Align="center">
+                <label class="font-bold">安装位置</label>
+                <Flex Class="w-1/2">
+                    <Input ReadOnly Placeholder="ComfyUI 安装位置" @bind-Value="@ViewModel.ComfyUIInstallationPath" DebounceMilliseconds="100">
+                        <AddOnAfter>
+                            <Button Type="text" OnClick="ChooseFolder">
+                                <Icon Type="@IconType.Outline.Folder"></Icon>
+                            </Button>
+                        </AddOnAfter>
+                    </Input>
+                </Flex>
+            </Flex>
+
+            @if (!string.IsNullOrEmpty(_comfyUIVersion))
+            {
+                <Flex Justify="space-between" Align="center">
+                    <label>ComfyUI 版本</label>
+                    <Flex Class="w-1/2">
+                        <Input ReadOnly Placeholder="ComfyUI 版本" @bind-Value="@_comfyUIVersion">
+                        </Input>
+                    </Flex>
+                </Flex>
+            }
+
+            @if (!string.IsNullOrEmpty(_pythonVersion))
+            {
+                <Flex Justify="space-between" Align="center">
+                    <label>Python 版本</label>
+                    <Flex Class="w-1/2">
+                        <Input ReadOnly Placeholder="Python 版本" @bind-Value="@_pythonVersion">
+                        </Input>
+                    </Flex>
+                </Flex>
+            }
+
+            @if (_isDownloading && _job != null)
+            {
+                if (_job.Status == null)
+                {
+                    <Alert Type="@AlertType.Info" Message="准备下载 ComfyUI" />
+                }
+                else if (_job.Status.Status == "active")
+                {
+                    var progress = (int)(_job.Status.CompletedLength * 1.0 / _job.Status.TotalLength * 100);
+
+                    <Alert Type="@AlertType.Info" Message="正在下载 ComfyUI" />
+                    <Progress Percent="@(progress)" />
+                    <Flex Gap="small">
+                        <TextDisplay IsVertical="false" Title="下载速度" Value="@_job.Status.DownloadSpeed.ToHumanReadable()" />
+                        <TextDisplay IsVertical="false" Title="已下载" Value="@(_job.Status.CompletedLength.ToHumanReadable())" />
+                        <TextDisplay IsVertical="false" Title="总大小" Value="@(_job.Status.TotalLength.ToHumanReadable())" />
+                    </Flex>
+                }
+                else if (_job.Status.Status == "complete")
+                {
+                    <Alert Type="@AlertType.Success" Message="下载完成" />
+                }
+                else if (_job.Status.Status == "error")
+                {
+                    <Alert Type="@AlertType.Error" Message="下载失败" />
+                }
+            }
+
+            @if (_isExtracting)
+            {
+                var text = $"正在解压文件：{_text}";
+                <Alert Type="@AlertType.Info" Message="@text" />
+            }
+        </Flex>
+        <Divider></Divider>
+        <div class="flex justify-between">
+            @if (string.IsNullOrEmpty(_comfyUIVersion) || string.IsNullOrEmpty(_pythonVersion) && _job == null)
+            {
+                if (!(_isDownloading || _isExtracting))
+                {
+                    <Button Type="danger" Icon="@IconType.Outline.CloudDownload" OnClick="Setup">下载并安装</Button>
+                }
+            }
+            <Button Class="ml-auto" Type="primary" Disabled="!(ViewModel.CanNext && !string.IsNullOrEmpty( _comfyUIVersion )&& !string.IsNullOrEmpty( _pythonVersion))" OnClick="ViewModel.OnNext">下一步</Button>
+        </div>
+    </ChildContent>
+</SkeletonBox>
+@code {
+    [CascadingParameter]
+    public InstallWizardViewModel ViewModel { get; set; } = null!;
+
+    [CascadingParameter]
+    public SettingsPopupViewModel SettingsPopupViewModel { get; set; } = null!;
+
+
+    private string? _comfyUIVersion, _pythonVersion;
+
+    private SkeletonBox? _skeletonBox;
+
+    private Subject<bool> _disposed = new();
+
+    private Aria2Job? _job;
+    private bool _isExtracting, _isDownloading;
+
+    private string _text = "";
+
+    private async Task Load()
+    {
+        _pythonVersion = await comfyUIService.GetPythonVersion();
+        _comfyUIVersion = await comfyUIService.GetComfyUIVersion();
+    }
+
+    private async Task ChooseFolder()
+    {
+        var result = await FolderPicker.Default.PickAsync(ViewModel.ComfyUIInstallationPath);
+
+        if (result.IsSuccessful)
+        {
+            var folder = result.Folder.Path;
+            ViewModel.ComfyUIInstallationPath = folder;
+
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+            await ViewModel.SaveComfyUISetting();
+
+            if (_skeletonBox != null)
+            {
+                await _skeletonBox.Reload();
+            }
+        }
+    }
+
+    private async Task DownloadSetup()
+    {
+        var job = await ViewModel.SetupComfyUI();
+        _job = job;
+        var setupStream = await GetSetupStream();
+
+        ViewModel.Aria2Job
+            .TakeUntil(_disposed)
+            .Where(o => o?.Id == job.Id)
+            .Do(o =>
+            {
+                _isDownloading = true;
+                _job = o;
+                InvokeAsync(StateHasChanged);
+            })
+            .Select(_ => Unit.Default)
+            .Concat(setupStream)
+            .Finally(() =>
+            {
+                _isDownloading = false;
+            })
+            .Subscribe();
+    }
+
+    private async Task<IObservable<Unit>> GetSetupStream()
+    {
+        var filePath = _job?.Status?.Files.FirstOrDefault()?.Path;
+
+        if (!File.Exists(filePath))
+        {
+            return Observable.Empty<Unit>();
+        }
+        var extractStream = await ViewModel.SetupComfyUI(filePath);
+
+        return extractStream
+            .TakeUntil(_disposed)
+            .Do(o =>
+            {
+                if (!_isExtracting)
+                {
+                    _isExtracting = true;
+                }
+
+                if (o == null)
+                {
+                    return;
+                }
+                _text = o;
+            })
+            .Sample(TimeSpan.FromMilliseconds(50))
+            .Select(o => Observable.FromAsync(async () =>
+            {
+                await InvokeAsync(StateHasChanged);
+            }))
+            .Switch()
+            .FinallyAsync(async () =>
+            {
+                _isExtracting = false;
+                await message.Success("ComfyUI 安装完成");
+
+                if (_skeletonBox != null)
+                {
+                    await _skeletonBox.Reload();
+                }
+
+                await InvokeAsync(StateHasChanged);
+            });
+    }
+
+    private async Task Setup()
+    {
+        var stream = await GetSetupStream();
+
+        stream.Subscribe();
+    }
+
+    public void Dispose()
+    {
+        _disposed.OnNext(true);
+        _disposed.OnCompleted();
+    }
+}

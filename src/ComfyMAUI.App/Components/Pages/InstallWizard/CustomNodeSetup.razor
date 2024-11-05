@@ -1,0 +1,110 @@
+﻿@inject ComfyNodesService comfyNodesService
+@implements IDisposable
+
+<SkeletonBox OnLoad="Load" @ref="_skeletonBox">
+    <Skeleton>
+        <Skeleton Active="true"></Skeleton>
+    </Skeleton>
+    <ChildContent>
+        @if (_logs.Any() || _pulling)
+        {
+            <Alert Type="@AlertType.Info" Message="正在下载节点"></Alert>
+            <Flex Gap="small" Vertical="true" Class="m-4 h-[260px] overflow-y-auto bg-gray-100">
+                @foreach (var log in _logs)
+                {
+                    <TextDisplay IsVertical="false" Title="@log"></TextDisplay>
+                }
+            </Flex>
+        }
+        else
+        {
+            <Flex Vertical="true" Gap="small" Class="m-4 h-[260px] overflow-y-auto bg-gray-100">
+                @foreach (var item in _comfyNodes.GroupBy(o => o.GroupName))
+                {
+                    <Card Title="@item.Key" Hoverable="false" Class="mx-4">
+                        <Body>
+                            <Flex Gap="small" Wrap="wrap">
+                                @foreach (var node in item)
+                                {
+                                    <div class="p-4 border-gray-400">
+                                        <a href="@node.GitUrl">
+                                            <TextDisplay Title="@node.Name"></TextDisplay>
+                                        </a>
+                                    </div>
+                                }
+                            </Flex>
+                        </Body>
+                    </Card>
+                }
+            </Flex>
+        }
+        <Divider></Divider>
+        <div class="flex justify-end">
+            @if (!_pulling)
+            {
+                <Button Type="primary" OnClick="Download">下载节点</Button>
+            }
+            <Button Class="ml-auto" Type="primary" Disabled="!(ViewModel.CanNext)" OnClick="OnComplete">完成</Button>
+        </div>
+    </ChildContent>
+</SkeletonBox>
+
+@code {
+    [CascadingParameter]
+    public InstallWizardViewModel ViewModel { get; set; } = null!;
+
+    [CascadingParameter]
+    public SettingsPopupViewModel SettingsPopupViewModel { get; set; } = null!;
+
+    private IReadOnlyList<ComfyNode> _comfyNodes = [];
+
+    private SkeletonBox? _skeletonBox;
+
+    private List<string> _logs = new();
+
+    private Subject<bool> _disposed = new();
+
+    private bool _pulling;
+
+    private async Task Load()
+    {
+        _comfyNodes = await comfyNodesService.GetNodes();
+    }
+
+    private ISubject<string>? _pullStream;
+
+    private async Task Download()
+    {
+        _pulling = true;
+        await this.InvokeAsync(StateHasChanged);
+        _pullStream = await ViewModel.PullComfyNodes(_comfyNodes);
+
+        _logs = new List<string>();
+
+        _pullStream
+            .TakeUntil(_disposed)
+            .Do((line) =>
+            {
+                _logs.Add(line);
+                this.InvokeAsync(StateHasChanged);
+            })
+            .FinallyAsync(async () =>
+            {
+                _pulling = false;
+                await this.InvokeAsync(StateHasChanged);
+            })
+            .Subscribe();
+    }
+
+
+    private async Task OnComplete()
+    {
+        await SettingsPopupViewModel.CloseAsync();
+    }
+
+    public void Dispose()
+    {
+        _disposed.OnNext(true);
+        _disposed.Dispose();
+    }
+}
