@@ -10,7 +10,8 @@
              Height="{Binding Height, Mode=OneWayToSource}"
         >
 
-    <Window.TitleBar>
+    <!-- Wait for upgrading dotnet core 9.0 -->
+    <!--<Window.TitleBar>
         <TitleBar x:Name="titleBar"
             Title="{Binding Title}"
             Subtitle="{Binding Subtitle}"
@@ -25,5 +26,5 @@
                 </HorizontalStackLayout>
             </TitleBar.TrailingContent>
         </TitleBar>
-    </Window.TitleBar>
+    </Window.TitleBar>-->
 </Window>
