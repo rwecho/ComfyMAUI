@@ -1,0 +1,97 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build Windows
+      run: dotnet publish src/ComfyMAUI.App/ComfyMAUI.App.csproj -c Release -f net9.0-windows10.0.19041.0 --self-contained true -r win-x64
+      
+    - name: Upload Windows Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-build
+        path: src/ComfyMAUI.App/bin/Release/net9.0-windows10.0.19041.0/win-x64/publish/
+
+# Temporarily disabled macOS build
+#  build-macos:
+#    runs-on: macos-latest
+#    
+#    steps:
+#    - uses: actions/checkout@v3
+#    
+#    - name: Setup .NET
+#      uses: actions/setup-dotnet@v3
+#      with:
+#        dotnet-version: '7.0.x'
+#        
+#    - name: Restore dependencies
+#      run: dotnet restore
+#      
+#    - name: Build macOS
+#      run: dotnet publish src/ComfyMAUI.App/ComfyMAUI.App.csproj -c Release -f net7.0-maccatalyst --self-contained true -r osx-x64
+#      
+#    - name: Upload macOS Artifact
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: macos-build
+#        path: src/ComfyMAUI.App/bin/Release/net7.0-maccatalyst/osx-x64/publish/
+
+  create-release:
+    needs: [build-windows] # Removed build-macos from dependencies
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Download Windows Build
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-build
+        path: windows-build
+
+#    - name: Download macOS Build
+#      uses: actions/download-artifact@v3
+#      with:
+#        name: macos-build
+#        path: macos-build
+
+    - name: Create Windows ZIP
+      run: |
+        cd windows-build
+        zip -r ../ComfyMAUI-Windows.zip .
+        cd ..
+
+#    - name: Create macOS ZIP
+#      run: |
+#        cd macos-build
+#        zip -r ../ComfyMAUI-macOS.zip .
+#        cd ..
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ComfyMAUI-Windows.zip
+#          ComfyMAUI-macOS.zip
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
