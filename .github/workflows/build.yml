@@ -80,7 +80,6 @@ jobs:
         chmod +x ~/mc
         ~/mc --version
         ~/mc alias set comfy-maui ${{ env.MINIO_SERVER }} ${{ env.MINIO_ACCESS_KEY }} ${{ env.MINIO_SECRET_KEY }}
-        ~/mc mb comfy-maui/comfy-maui || true
         ~/mc cp ComfyMAUI-Windows-${{ steps.get_tag.outputs.tag }}.zip comfy-maui/comfy-maui/
       env:
         MINIO_SERVER: ${{ secrets.MINIO_SERVER }}
