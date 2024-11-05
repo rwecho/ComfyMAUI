@@ -19,6 +19,12 @@ jobs:
       with:
         dotnet-version: '9.x'
         
+    - name: Install MAUI Workload
+      run: |
+        dotnet workload install maui
+        dotnet workload install maccatalyst
+        dotnet workload install maui-windows
+        
     - name: Restore dependencies
       run: dotnet restore
       
@@ -41,19 +47,26 @@ jobs:
 #    - name: Setup .NET
 #      uses: actions/setup-dotnet@v3
 #      with:
-#        dotnet-version: '7.0.x'
+#        dotnet-version: '9.x'
+
+#    - name: Install MAUI Workload
+#      run: |
+#       dotnet workload install maui
+#       dotnet workload install maccatalyst
+#       dotnet workload install maui-windows
+
 #        
 #    - name: Restore dependencies
 #      run: dotnet restore
 #      
 #    - name: Build macOS
-#      run: dotnet publish src/ComfyMAUI.App/ComfyMAUI.App.csproj -c Release -f net7.0-maccatalyst --self-contained true -r osx-x64
+#      run: dotnet publish src/ComfyMAUI.App/ComfyMAUI.App.csproj -c Release -f net9.0-maccatalyst --self-contained true -r osx-x64
 #      
 #    - name: Upload macOS Artifact
 #      uses: actions/upload-artifact@v3
 #      with:
 #        name: macos-build
-#        path: src/ComfyMAUI.App/bin/Release/net7.0-maccatalyst/osx-x64/publish/
+#        path: src/ComfyMAUI.App/bin/Release/net9.0-maccatalyst/osx-x64/publish/
 
   create-release:
     needs: [build-windows] # Removed build-macos from dependencies
