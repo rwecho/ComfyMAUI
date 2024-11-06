@@ -60,9 +60,6 @@
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Remove="Resources\Raw\ComfyNodes.json" />
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="AntDesign" Version="1.0.0" />
@@ -87,5 +84,4 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
-
 </Project>
