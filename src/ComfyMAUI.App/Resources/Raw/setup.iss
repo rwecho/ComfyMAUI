@@ -29,7 +29,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 
 [Files]
-Source: "*"; Excludes: "output,*.pdb,*.iss,win7-x86"; DestDir: "{app}"  ;Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "*"; Excludes: "output,*.pdb,*.iss,win7-x86,x86"; DestDir: "{app}"  ;Flags: ignoreversion recursesubdirs createallsubdirs
 
 
 [Run]
