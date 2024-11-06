@@ -1,5 +1,6 @@
 ﻿@page "/bottom"
 @using ComfyMAUI.Views
+@using CommunityToolkit.Maui.Alerts
 @using CommunityToolkit.Maui.Core
 
 
@@ -12,6 +13,8 @@
     <ChildContent>
         <div class="overflow-x-hidden overflow-y-hidden h-[32px] w-full bg-gray-100 flex px-4 items-center justify-center">
             <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoSettings">配置</Button>
+            <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoWorkflowPage">工作流</Button>
+            <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoModelsPage">模型</Button>
 
             <Divider Type="DirectionVHType.Vertical"></Divider>
             <span>@_gitVersion</span>
@@ -41,6 +44,22 @@
             viewModel.Width = HostWindowViewModel.Width;
             viewModel.Height = HostWindowViewModel.Height;
         });
+    }
+
+
+    private async Task GoWorkflowPage()
+    {
+        var toast = Toast.Make("正在建设中...");
+        await toast.Show();
+
+    }
+
+    private async Task GoModelsPage()
+    {
+        var toast = Toast.Make("正在建设中...");
+
+        await toast.Show();
+
     }
 
     private async Task Load()
