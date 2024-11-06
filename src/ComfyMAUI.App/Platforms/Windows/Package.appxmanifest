@@ -46,7 +46,7 @@
 
 			<com:Extension Category="windows.comServer">
 				<com:ComServer>
-					<com:ExeServer Executable="ComfyMAUI.App\ComfyMAUI.App.exe" DisplayName="$targetnametoken$" Arguments="----AppNotificationActivated:">
+					<com:ExeServer Executable="ComfyMAUI.App.exe" DisplayName="$targetnametoken$" Arguments="----AppNotificationActivated:">
 						<!-- Example path to executable: CommunityToolkit.Maui.Sample\CommunityToolkit.Maui.Sample.exe -->
 						<com:Class Id="6e919706-2634-4d97-a93c-2213b2acc334" />
 					</com:ExeServer>

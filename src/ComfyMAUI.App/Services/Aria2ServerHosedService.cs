@@ -3,32 +3,22 @@ using System.Diagnostics;
 
 namespace ComfyMAUI.Services;
 
-public class Aria2ServerHosedService(IOptions<Aria2cOptions> options) : IHostedService
+public class Aria2ServerHosedService(ProcessService processService, IOptions<Aria2cOptions> options) : IHostedService
 {
-    public Task StartAsync(CancellationToken cancellationToken)
+    private Process? _process;
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-#if !__IOS__
         var arguments = $"--enable-rpc {(options.Value.ListenAll ? "--rpc-listen-all" : "")} --rpc-listen-port={options.Value.ListenPort}";
-
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = options.Value.BinPath,
-                Arguments = arguments,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            }
-        };
-
-        process.Start();
-#endif
-        return Task.CompletedTask;
+        _process = await processService.Start(options.Value.BinPath, arguments, null, null, null, false);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        if (_process != null)
+        {
+            _process.Kill();
+        }
+
         return Task.CompletedTask;
     }
 }

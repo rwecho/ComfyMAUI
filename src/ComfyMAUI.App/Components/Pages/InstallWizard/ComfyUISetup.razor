@@ -85,7 +85,7 @@
             {
                 if (!(_isDownloading || _isExtracting))
                 {
-                    <Button Type="danger" Icon="@IconType.Outline.CloudDownload" OnClick="Setup">下载并安装</Button>
+                    <Button Type="danger" Icon="@IconType.Outline.CloudDownload" OnClick="DownloadSetup">下载并安装</Button>
                 }
             }
             <Button Class="ml-auto" Type="primary" Disabled="!(ViewModel.CanNext && !string.IsNullOrEmpty( _comfyUIVersion )&& !string.IsNullOrEmpty( _pythonVersion))" OnClick="ViewModel.OnNext">下一步</Button>
@@ -202,13 +202,6 @@
 
                 await InvokeAsync(StateHasChanged);
             });
-    }
-
-    private async Task Setup()
-    {
-        var stream = await GetSetupStream();
-
-        stream.Subscribe();
     }
 
     public void Dispose()
