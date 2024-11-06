@@ -1,4 +1,4 @@
-﻿#define MyAppName   "Comfy MAUI"
+﻿#define MyAppName   "ComfyMAUI"
 #define MyCompany   "AiShuoHua"
 #define MyApp       "ComfyMAUI.App.exe"
 [Setup]
