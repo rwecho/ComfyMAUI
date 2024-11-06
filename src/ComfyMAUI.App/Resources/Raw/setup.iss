@@ -34,6 +34,7 @@ Source: "*"; Excludes: "output,*.pdb,*.iss,win7-x86,x86"; DestDir: "{app}"  ;Fla
 
 [Run]
 Filename: {app}\{#MyApp}; Description: {cm:LaunchProgram, {#MyAppName}}; Flags: postinstall skipifsilent nowait
+Filename: "cmd"; Parameters: "/c del MicrosoftEdgeWebview2Setup.exe"; Flags: runhidden
 
 [UninstallRun]
 ;Filename: {app}\{#MyApp};Parameters: {#MyAppUninstallParameter}; Flags: runhidden
@@ -57,13 +58,84 @@ begin
   Result := sUnInstallString;
 end;
 
+function DownloadAndInstallWebView2(): boolean;
+var
+  ErrorCode: Integer;
+begin
+  Result := false;
+  if MsgBox('WebView2 Runtime is not installed. Do you want to download and install it now?', mbInformation, MB_YESNO) = IDYES then
+  begin
+    ExtractTemporaryFile('MicrosoftEdgeWebview2Setup.exe');
+    if Exec(ExpandConstant('{tmp}\MicrosoftEdgeWebview2Setup.exe'), '', '', SW_SHOW, ewWaitUntilTerminated, ErrorCode) then
+    begin
+      if ErrorCode = 0 then
+      begin
+        Log('WebView2 Runtime installed successfully.');
+        Result := true;
+      end
+      else
+      begin
+        Log('WebView2 Runtime installation failed with error code: ' + IntToStr(ErrorCode));
+      end;
+    end
+    else
+    begin
+      Log('Failed to execute WebView2 installer.');
+    end;
+  end;
+end;
+
+function IsWebView2RuntimeNeeded(): boolean;
+var
+  Version: string;
+  RuntimeNeeded: boolean;
+  VerifyRuntime: boolean;
+begin
+  { See: https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution#detect-if-a-suitable-webview2-runtime-is-already-installed }
+
+  RuntimeNeeded := true;
+  VerifyRuntime := false;
+
+  { Since we are using an elevated installer I am not checking HKCU }
+  if (IsWin64) then
+  begin
+    { Test x64 }
+    if (RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version)) then
+    begin
+      { We need to verify }
+      VerifyRuntime := true;
+    end;
+  end
+  else
+  begin
+    { Test x32 }
+    if (RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}', 'pv', Version)) then
+    begin
+      { We need to verify }
+      VerifyRuntime := true;
+    end;
+  end;
+
+  { Verify the version information }
+  if (VerifyRuntime) then
+  begin
+    if (Version <> '') and (Version <> '0.0.0.0') then
+    begin
+      Log('WebView2 Runtime is installed');
+      RuntimeNeeded := false;
+    end
+    else
+      Log('WebView2 Runtime needs to be downloaded and installed');
+  end;
+
+  Result := RuntimeNeeded;
+end;
 
 function InitializeSetup(): Boolean;
 var
   V: Integer;
   ErrorCode: Integer;
   sUnInstallString: string;
-
 begin
   if RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\{CE845203-848B-4D07-98A6-1E3A5CA8CDCD}_is1', 'UninstallString') then  //Your App GUID/ID
   begin
@@ -81,6 +153,13 @@ begin
   end
   else
   begin
-    Result := True;
+    if IsWebView2RuntimeNeeded() then
+    begin
+      Result := DownloadAndInstallWebView2();
+    end
+    else
+    begin
+      Result := True;
+    end;
   end;
 end;
