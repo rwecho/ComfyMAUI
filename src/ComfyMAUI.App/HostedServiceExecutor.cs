@@ -44,6 +44,11 @@ public class HostedServiceExecutor(IEnumerable<IHostedService> services)
             {
                 await service.StopAsync(token);
             }
+            catch(TaskCanceledException)
+            {
+                //ignore
+            }
+
             catch (Exception ex)
             {
                 exceptions ??= [];

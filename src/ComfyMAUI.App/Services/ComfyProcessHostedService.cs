@@ -1,9 +1,13 @@
-﻿namespace ComfyMAUI.Services;
+﻿using System.Diagnostics;
+
+namespace ComfyMAUI.Services;
 
 public class ComfyProcessHostedService (ProcessService processService, ComfyUIService comfyUIService,
     SettingsService settingsService
     ): IHostedService
 {
+    private Process? _process;
+
     public async Task StartAsync(CancellationToken token)
     {
         var mirrorSettings = await settingsService.Get<MirrorSettings>(MirrorSettings.Key);
@@ -35,11 +39,23 @@ public class ComfyProcessHostedService (ProcessService processService, ComfyUISe
             ["PIP_INDEX_URL"] = mirrorSettings.PipMirror,
             ["HF_ENDPOINT"] = mirrorSettings.HuggingFaceMirror,
         };
-        await processService.Start(bat, "", installationPath, null, environment: environment);
+        _process = await processService.Start(
+            bat,
+            "",
+            installationPath,
+            null,
+            environment: environment,
+            waitForExit: false
+            );
     }
 
-    public async Task StopAsync(CancellationToken token)
+    public Task StopAsync(CancellationToken token)
     {
-        await processService.Start("taskkill", "/IM python.exe /F", "");
+        if (_process != null)
+        {
+            _process.Kill();
+        }
+
+        return Task.CompletedTask;
     }
 }

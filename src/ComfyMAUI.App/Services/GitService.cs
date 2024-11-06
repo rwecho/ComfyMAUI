@@ -52,6 +52,6 @@ public class GitService(ProcessService processService)
 
     public async Task Clone(string url, string workingFolder, Action<string?> action)
     {
-        await processService.Start("git", $"clone {url}", workingFolder, action, null);
+        await processService.Start("git", $"clone {url}", workingFolder, action, null, waitForExit: true);
     }
 }

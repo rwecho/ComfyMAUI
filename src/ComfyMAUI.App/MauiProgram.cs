@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
+using Nito.AsyncEx;
 using Serilog;
 using Serilog.Events;
+using System;
 using System.Reflection;
 
 namespace ComfyMAUI;
@@ -18,7 +20,10 @@ public static class MauiProgram
 
         var builder = MauiApp.CreateBuilder();
         builder
-            .UseMauiApp<App>()
+            .UseMauiApp(serviceProvider =>
+            {
+                return new App();
+            })
             .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
             {
@@ -28,18 +33,35 @@ public static class MauiProgram
             {
 #if WINDOWS
                 events.AddWindows(windows => windows
-                    .OnActivated ((Window,args)=> LogEvent(nameof(WindowsLifecycle.OnActivated)))
-                    .OnClosed((Window, args) => 
+                    .OnWindowCreated((window) =>
+                    {
+                        var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                        var id = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(handle);
+                        var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(id);
+
+                        switch (appWindow.Presenter)
+                        {
+                            case Microsoft.UI.Windowing.OverlappedPresenter overlappedPresenter:
+                                ////disable the max button
+                                //overlappedPresenter.IsMaximizable = false;
+                                break;
+                        }
+
+                        //When user execute the closing method, we can make the window do not close by   e.Cancel = true;.
+                        appWindow.Closing += (s, e) =>
+                        {
+                            startUp.OnApplicationShutdown().Wait();
+                        };
+                    })
+                    .OnActivated ((window, args)=> LogEvent(nameof(WindowsLifecycle.OnActivated)))
+                    .OnClosed((window, args) => 
                     {
                         LogEvent(nameof(WindowsLifecycle.OnClosed));
-                        // Shutdown the application
-
-                        //startUp.OnApplicationShutdown().Wait();
                     })
-                    .OnLaunched((Window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunched)))
-                    .OnLaunching((Window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunching)))
-                    .OnVisibilityChanged((Window, args) => LogEvent(nameof(WindowsLifecycle.OnVisibilityChanged)))
-                    .OnPlatformMessage((Window, args) =>
+                    .OnLaunched((window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunched)))
+                    .OnLaunching((window, args) => LogEvent(nameof(WindowsLifecycle.OnLaunching)))
+                    .OnVisibilityChanged((window, args) => LogEvent(nameof(WindowsLifecycle.OnVisibilityChanged)))
+                    .OnPlatformMessage((window, args) =>
                     {
                         if (args.MessageId == Convert.ToUInt32("031A", 16))
                         {

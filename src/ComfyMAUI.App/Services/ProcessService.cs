@@ -4,11 +4,12 @@ using System.Text;
 namespace ComfyMAUI.Services;
 public class ProcessService
 {
-    public async Task<int> Start(string command, string arguments,
+    public async Task<Process> Start(string command, string arguments,
         string? workingDirectory,
         Action<string>? outputReceived = null,
         Action<string>? errorReceived = null,
-        Dictionary<string,string>? environment = null)
+        Dictionary<string,string>? environment = null,
+        bool waitForExit = false)
     {
         var process = new Process
         {
@@ -54,17 +55,24 @@ public class ProcessService
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        await process.WaitForExitAsync();
+        if (waitForExit)
+        {
+            await process.WaitForExitAsync();
+        }
 
-        return process.ExitCode;
+        return process;
     }
 
-    public async Task<int> Start(string command, string arguments,
+    public async Task<Process> Start(string command, string arguments,
         string? workingDirectory = null,
         Action<string>? allReceived = null,
-        Dictionary<string, string>? environment = null)
+        Dictionary<string, string>? environment = null,
+        bool waitForExit = false)
     {
-        return await Start(command, arguments, workingDirectory, allReceived, allReceived);
+        return await Start(command, arguments, workingDirectory, 
+            allReceived, 
+            allReceived, 
+            waitForExit: waitForExit);
     }
 
 

@@ -28,7 +28,6 @@ public class Startup
         
         services.AddTransient<InstallWizardViewModel>();
 
-
         services.AddAntDesign();
         services.AddMauiBlazorWebView();
         services.AddTransientPopup<SettingsPopup, SettingsPopupViewModel>();
@@ -55,7 +54,7 @@ public class Startup
     public async Task OnApplicationShutdown()
     {
         if (_serviceExecutor == null) return;
-
+        _cts.Cancel();
         await _serviceExecutor.StopAsync(_cts.Token);
     }
 }

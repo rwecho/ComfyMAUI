@@ -7,10 +7,13 @@ public partial class App : Application
         InitializeComponent();
     }
 
+
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return activationState == null
+        var window = activationState == null
             ? throw new ArgumentNullException(nameof(activationState))
             : (Window)activationState.Context.Services.GetRequiredService<MainWindow>();
+
+        return window;
     }
 }
