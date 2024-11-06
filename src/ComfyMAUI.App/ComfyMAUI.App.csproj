@@ -21,6 +21,8 @@
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
         <Nullable>enable</Nullable>
 
+		<ApplicationIcon>Resources/AppIcon/ComfyUI.ico</ApplicationIcon>
+
         <!-- Display name -->
         <ApplicationTitle>ComfyMAUI</ApplicationTitle>
 

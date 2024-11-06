@@ -8,6 +8,7 @@
              x:DataType="local:MainWindowViewModel"
              Width="{Binding Width, Mode=OneWayToSource}"
              Height="{Binding Height, Mode=OneWayToSource}"
+        Title="Comfy MAUI"
         >
 
     <!-- Wait for upgrading dotnet core 9.0 -->

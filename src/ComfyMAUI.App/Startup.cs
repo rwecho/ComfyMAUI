@@ -20,7 +20,6 @@ public class Startup
         services.AddTransient<GitService>();
         services.AddTransient<NavigationService>();
         services.AddTransient<NvidiaService>();
-        services.AddTransient<PythonService>();
         services.AddSingleton<SettingsService>();
         services.AddTransient<HostedServiceExecutor>();
         services.AddTransient<ComfyNodesService>();

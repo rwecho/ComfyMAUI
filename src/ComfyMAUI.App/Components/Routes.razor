@@ -1,7 +1,8 @@
-﻿
+﻿@using ComfyMAUI.Views
+
 <Router AppAssembly="@typeof(MauiProgram).Assembly">
     <Found Context="routeData">
-        <CascadingValue Value="SettingsPopupViewModel">
+        <CascadingValue Value="HostWindowViewModel">
             <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </CascadingValue>
@@ -12,5 +13,7 @@
 
 @code {
     [Parameter]
-    public SettingsPopupViewModel SettingsPopupViewModel { get; set; } = null!;
+    public IHostWindowViewModel HostWindowViewModel { get; set; } = null!;
+
+
 }

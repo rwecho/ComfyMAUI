@@ -1,23 +1,21 @@
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.AspNetCore.Components.WebView.Maui;
 
 namespace ComfyMAUI.Views.Popups;
 
 public partial class SettingsPopup : Popup
 {
-	public SettingsPopup(SettingsPopupViewModel vm)
-	{
-		InitializeComponent();
+    public SettingsPopup(SettingsPopupViewModel vm)
+    {
+        InitializeComponent();
 
         vm.CloseRequested += (s, e) => CloseAsync(e);
 
         rootComponent.Parameters = new Dictionary<string, object?>
         {
-            { "SettingsPopupViewModel", vm }
+            { "HostWindowViewModel", vm }
         };
         BindingContext = vm;
-        
     }
 
     private async void OnYesButtonClicked(object sender, EventArgs e)
@@ -31,14 +29,14 @@ public partial class SettingsPopup : Popup
     }
 }
 
-public partial class SettingsPopupViewModel: ObservableObject
+public partial class SettingsPopupViewModel: ObservableObject, IPopupHostWindowViewModel
 {
     private const int MaxWidth = 800, MaxHeight = 400;
-    public Size Size => new(Math.Min(MaxWidth, ParentWidth - 200), Math.Max(MaxHeight, ParentHeight - 200));
+    public Size Size => new(Math.Min(MaxWidth, Width - 200), Math.Max(MaxHeight, Height - 200));
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Size))]
-    public double _parentWidth, _parentHeight;
+    public double _width, _height;
 
     public event EventHandler<object?>? CloseRequested;
 
@@ -48,5 +46,4 @@ public partial class SettingsPopupViewModel: ObservableObject
 
         return Task.CompletedTask;
     }
-
 }

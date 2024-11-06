@@ -8,7 +8,7 @@
                 <label class="font-bold">GitHub 镜像地址</label>
                 <Flex Class="w-1/2">
                     <Input Placeholder="GitHub" @bind-Value="@ViewModel.GitHubMirror" DebounceMilliseconds="100">
-                    <AddOnAfter><Icon Type="github"></Icon></AddOnAfter>
+                        <AddOnAfter><Icon Type="github"></Icon></AddOnAfter>
                     </Input>
                 </Flex>
             </Flex>
@@ -16,7 +16,7 @@
                 <label>HuggingFace 镜像地址</label>
                 <Flex Class="w-1/2">
                     <Input Placeholder="HuggingFace" @bind-Value="@(ViewModel.HuggingFaceMirror)" DebounceMilliseconds="100">
-                    <AddOnAfter><Icon Type="thunderbolt"></Icon></AddOnAfter>
+                        <AddOnAfter><Icon Type="thunderbolt"></Icon></AddOnAfter>
                     </Input>
                 </Flex>
             </Flex>
@@ -25,7 +25,7 @@
                 <label>Pip 镜像地址</label>
                 <Flex Class="w-1/2">
                     <Input Placeholder="Pip" @bind-Value="@(ViewModel.PipMirror)" DebounceMilliseconds="100">
-                    <AddOnAfter><Icon Type="node-index"></Icon></AddOnAfter>
+                        <AddOnAfter><Icon Type="node-index"></Icon></AddOnAfter>
                     </Input>
                 </Flex>
             </Flex>
@@ -40,7 +40,7 @@
 
 @code {
     [CascadingParameter]
-    public InstallWizardViewModel ViewModel { get; set; }
+    public InstallWizardViewModel ViewModel { get; set; } = null!;
 
 
     private async Task Load()

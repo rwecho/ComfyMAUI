@@ -8,12 +8,24 @@ public partial class MainPage : ContentPage
     public MainPage(MainPageViewModel viewModel)
     {
         InitializeComponent();
+        rootComponent.Parameters = new Dictionary<string, object?>
+        {
+            { "HostWindowViewModel", viewModel }
+        };
         BindingContext = viewModel;
+    }
+
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        var viewModel = (MainPageViewModel)BindingContext;
+
+        viewModel.Width = width;
+        viewModel.Height = height;
     }
 }
 
 
-public partial class MainPageViewModel : ObservableObject
+public partial class MainPageViewModel : ObservableObject, IHostWindowViewModel
 {
     public MainPageViewModel(ComfyUIService comfyUIService, NavigationService navigationService)
     {
@@ -33,4 +45,7 @@ public partial class MainPageViewModel : ObservableObject
 
     public ComfyUIService ComfyUIService { get; }
     public NavigationService NavigationService { get; }
+
+    [ObservableProperty]
+    private double _width, _height;
 }

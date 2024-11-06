@@ -6,7 +6,7 @@ public class MirrorSettings
 {
     public const string Key = "mirror_settings";
 
-    public virtual string GitHubMirror { get; set; } = "https://mirror.ghproxy.com/";
+    public virtual string GitHubMirror { get; set; } = "https://ghp.ci/";
     public virtual string PipMirror { get; set; } = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple";
     public virtual string HuggingFaceMirror { get; set; } = "https://hf-mirror.com";
 }

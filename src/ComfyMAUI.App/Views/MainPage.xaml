@@ -5,19 +5,23 @@
              xmlns:views="clr-namespace:ComfyMAUI.Views"
              x:Class="ComfyMAUI.Views.MainPage"
              Title="Comfy MAUI"
-             NavigationPage.HasNavigationBar="False" x:DataType="views:MainPageViewModel">
+             NavigationPage.HasNavigationBar="False"
+        x:DataType="views:MainPageViewModel">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <!--<RowDefinition Height="32" />-->
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="32" />
         </Grid.RowDefinitions>
-        <WebView Source="{Binding Url}" />
-        <!--<WebView Source="http://192.168.1.220:8188" />-->
+        <WebView Source="{Binding Url}"/>
 
-        <!--<BlazorWebView  Grid.Row="1" x:Name="blazorWebView" HostPage="wwwroot/index.html" StartPath="/bottom"   >
-            <BlazorWebView.RootComponents >
-                <RootComponent Selector="#app" ComponentType="{x:Type local:Components.Routes}"   />
+        <BlazorWebView  Grid.Row="1"
+                x:Name="blazorWebView"
+                HostPage="wwwroot/index.html"
+                StartPath="/bottom">
+            <BlazorWebView.RootComponents>
+                <RootComponent x:Name="rootComponent"  Selector="#app"
+                        ComponentType="{x:Type local:Components.Routes}"/>
             </BlazorWebView.RootComponents>
-        </BlazorWebView>-->
+        </BlazorWebView>
     </Grid>
 </ContentPage>

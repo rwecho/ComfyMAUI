@@ -17,7 +17,7 @@ public partial class MainWindow : Window
 	}
 }
 
-public partial class MainWindowViewModel(IPopupService popupService) : ObservableObject
+public partial class MainWindowViewModel(IPopupService popupService) : ObservableObject, IHostWindowViewModel
 {
 
 	[ObservableProperty]
@@ -35,10 +35,10 @@ public partial class MainWindowViewModel(IPopupService popupService) : Observabl
 
     public ICommand GoSettingsCommand => new AsyncRelayCommand(async () =>
 	{
-        await popupService.ShowPopupAsync<SettingsPopupViewModel>(viewModel=>
+		await popupService.ShowPopupAsync<SettingsPopupViewModel>(viewModel =>
 		{
-			viewModel.ParentWidth = this.Width;
-            viewModel.ParentHeight = this.Height;
-        });
+			viewModel.Width = this.Width;
+			viewModel.Height = this.Height;
+		});
     });
 }

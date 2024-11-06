@@ -1,5 +1,6 @@
 ﻿@page "/install-wizard"
 @using ComfyMAUI.Components.Layout
+@using ComfyMAUI.Views
 @inject IMessageService message
 @inject InstallWizardViewModel _viewModel
 @implements IDisposable
@@ -38,16 +39,18 @@
 </style>
 
 @code {
-
     [CascadingParameter]
-    public SettingsPopupViewModel SettingsPopupViewModel { get; set; }
+    public IHostWindowViewModel HostWindowViewModel { get; set; } = null!;
 
     private Subject<bool> _disposed = new();
     private int _current;
 
     public async Task ClosePopup()
     {
-        await SettingsPopupViewModel.CloseAsync();
+        if(HostWindowViewModel is IPopupHostWindowViewModel popupHostWindowViewModel)
+        {
+            await popupHostWindowViewModel.CloseAsync();
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -66,8 +69,8 @@
 
     public class StepItem
     {
-        public string Title { get; set; }
-        public RenderFragment Content { get; set; }
+        public string Title { get; set; } = null!;
+        public RenderFragment Content { get; set; } = null!;
     }
 
     public StepItem[] steps =

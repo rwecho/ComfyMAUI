@@ -21,7 +21,9 @@
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="4"></RoundRectangle>
         </Border.StrokeShape>
-        <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html" StartPath="/install-wizard">
+        <BlazorWebView x:Name="blazorWebView" 
+                       HostPage="wwwroot/index.html" 
+                       StartPath="/install-wizard">
             <BlazorWebView.RootComponents>
                 <RootComponent x:Name="rootComponent" Selector="#app" ComponentType="{x:Type local:Components.Routes}"/>
             </BlazorWebView.RootComponents>
