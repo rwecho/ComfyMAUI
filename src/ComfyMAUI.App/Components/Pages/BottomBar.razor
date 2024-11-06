@@ -8,28 +8,31 @@
 @inject IPopupService popupService
 @inject ComfyUIService comfyUIService
 
-<div class="overflow-x-hidden overflow-y-hidden h-[32px] w-full bg-gray-100 flex px-4 items-center justify-center">
-    <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoSettings">配置</Button>
+<SkeletonBox OnLoad="Load">
+    <ChildContent>
+        <div class="overflow-x-hidden overflow-y-hidden h-[32px] w-full bg-gray-100 flex px-4 items-center justify-center">
+            <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoSettings">配置</Button>
 
-    <Divider Type="DirectionVHType.Vertical"></Divider>
-    <span >@_gitVersion</span>
-    <Divider Type="DirectionVHType.Vertical"></Divider>
-    <span >python3 @_pythonVersion</span>
-    <Divider Type="DirectionVHType.Vertical"></Divider>
-    <span>comfyUI @_comfyUIVersion</span>
-</div>
+            <Divider Type="DirectionVHType.Vertical"></Divider>
+            <span>@_gitVersion</span>
+            <Divider Type="DirectionVHType.Vertical"></Divider>
+            <span>python3 @_pythonVersion</span>
+            <Divider Type="DirectionVHType.Vertical"></Divider>
+            <span>comfyUI @_comfyUIVersion</span>
+        </div>
+    </ChildContent>
+    <Skeleton>
+        <SkeletonElement Type="input" Active="true" Size="SkeletonElementSize.Default" style="width:300px"></SkeletonElement>
+    </Skeleton>
+</SkeletonBox>
+
+
 @code {
     [CascadingParameter]
     public IHostWindowViewModel HostWindowViewModel { get; set; } = null!;
 
     private string? _gitVersion, _pythonVersion, _comfyUIVersion;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _gitVersion = await gitService.GetVersion();
-        _pythonVersion = await comfyUIService.GetPythonVersion();
-        _comfyUIVersion = await comfyUIService.GetComfyUIVersion();
-    }
 
     private async Task GoSettings()
     {
@@ -38,5 +41,12 @@
             viewModel.Width = HostWindowViewModel.Width;
             viewModel.Height = HostWindowViewModel.Height;
         });
+    }
+
+    private async Task Load()
+    {
+        _gitVersion = await gitService.GetVersion();
+        _pythonVersion = await comfyUIService.GetPythonVersion();
+        _comfyUIVersion = await comfyUIService.GetComfyUIVersion();
     }
 }
