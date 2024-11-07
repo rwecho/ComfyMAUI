@@ -28,6 +28,7 @@ public class Startup
         
         services.AddTransient<InstallWizardViewModel>();
         services.AddTransient<DownloadAndSetupViewModel>();
+        services.AddTransient<DownloadModelsService>();
 
         services.AddAntDesign();
         services.AddMauiBlazorWebView();

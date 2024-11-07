@@ -11,7 +11,7 @@ public class InstallWizardViewModel()
 
     public Task OnNext()
     {
-        if (_currentSubject.Value == 3)
+        if (_currentSubject.Value == 4)
         {
             return Task.CompletedTask;
         }

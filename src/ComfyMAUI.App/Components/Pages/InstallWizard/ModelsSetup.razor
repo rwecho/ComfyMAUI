@@ -1,0 +1,79 @@
+﻿@using ComfyMAUI.Views
+@inject DownloadModelsService downloadModelsService
+@inject Aria2JobManager aria2JobManager
+@inject SettingsService settingsService
+@inject INotificationService notice
+
+<SkeletonBox OnLoad="Load">
+    <Skeleton>
+        <Skeleton Active="true"></Skeleton>
+    </Skeleton>
+    <ChildContent>
+        <Flex Vertical="true" Gap="small" Class="m-4 h-[260px] overflow-y-auto bg-gray-100">
+            @foreach (var line in _lines)
+            {
+                <Alert Type="@AlertType.Info" Message="@line"></Alert>
+            }
+            @if(_lines.Count == 0)
+            {
+                @foreach (var item in _modelDownloadItems)
+                {
+                    <Alert Type="@AlertType.Info" Message="@item.Output"></Alert>
+                }
+            }
+        </Flex>
+        <Divider></Divider>
+        <div class="flex justify-end">
+            @if (!_pulling)
+            {
+                <Button Type="primary" OnClick="Download">下载模型</Button>
+            }
+            <Button Class="ml-auto" Type="primary" Disabled="@_pulling" OnClick="OnComplete">完成</Button>
+        </div>
+    </ChildContent>
+</SkeletonBox>
+
+@code {
+    [CascadingParameter]
+    public InstallWizardViewModel ViewModel { get; set; } = null!;
+    [CascadingParameter]
+    public IHostWindowViewModel HostWindowViewModel { get; set; } = null!;
+
+    private bool _pulling;
+
+    private List<string> _lines = new();
+
+    private List<ModelDownloadItem> _modelDownloadItems = [];
+
+    private ComfyUIPythonSettings? _comfyUIPythonSettings;
+
+    private async Task Load()
+    {
+        _modelDownloadItems = await downloadModelsService.GetPresetModels();
+
+        _comfyUIPythonSettings = await settingsService.Get<ComfyUIPythonSettings>(ComfyUIPythonSettings.Key);
+    }
+
+    private async Task Download()
+    {
+        if (_comfyUIPythonSettings == null)
+        { return; }
+        foreach (var item in _modelDownloadItems)
+        {
+            var directory = Path.Combine(_comfyUIPythonSettings.ModelsFolder, item.Directory);
+            await aria2JobManager.AddJob(item.Url, directory, item.Output);
+        }
+        notice.Success(new NotificationConfig
+            {
+                Message = "加入到下载队列中, 请在下载页面检查是否下载完成."
+            });
+    }
+
+    private async Task OnComplete()
+    {
+        if (HostWindowViewModel is IPopupHostWindowViewModel popupHostWindowViewModel)
+        {
+            await popupHostWindowViewModel.CloseAsync();
+        }
+    }
+}

@@ -16,7 +16,13 @@ public class ComfyUIPythonSettings
     public const string Key = "comfyui_settings";
     public virtual string InstallationPath { get; set; } = "bin";
 
-    public virtual string? DownloadId { get; set; }
+    public string CustomNodesFolder
+    {
+        get
+        {
+            return Path.Combine(ComfyUIFolder, "custom_nodes");
+        }
+    }
 
     public string PythonFolder
     {
@@ -31,6 +37,14 @@ public class ComfyUIPythonSettings
         get
         {
             return Path.Combine(InstallationPath, "ComfyUI");
+        }
+    }
+
+    public string ModelsFolder
+    {
+        get
+        {
+            return Path.Combine(ComfyUIFolder, "models");
         }
     }
 }

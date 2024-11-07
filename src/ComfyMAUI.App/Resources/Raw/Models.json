@@ -1,0 +1,127 @@
+[
+  {
+    "Url": "https://hf-mirror.com/Comfy-Org/flux1-schnell/resolve/main/flux1-schnell-fp8.safetensors",
+    "Directory": "checkpoints",
+    "Output": "flux1-schnell-fp8.safetensors"
+  },
+  {
+    "Url": "https://hf-mirror.com/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors",
+    "Directory": "vae",
+    "Output": "vae-ft-mse-840000-ema-pruned.safetensors"
+  },
+  {
+    "Url": "https://ghp.ci/https://raw.githubusercontent.com/madebyollin/taesd/main/taesd_decoder.pth",
+    "Directory": "vae_approx",
+    "Output": "taesd_decoder.pth"
+  },
+  {
+    "Url": "https://ghp.ci/https://raw.githubusercontent.com/madebyollin/taesd/main/taesdxl_decoder.pth",
+    "Directory": "vae_approx",
+    "Output": "taesdxl_decoder.pth"
+  },
+  {
+    "Url": "https://ghp.ci/https://raw.githubusercontent.com/madebyollin/taesd/main/taesd3_decoder.pth",
+    "Directory": "vae_approx",
+    "Output": "taesd3_decoder.pth"
+  },
+  {
+    "Url": "https://ghp.ci/https://raw.githubusercontent.com/madebyollin/taesd/main/taef1_decoder.pth",
+    "Directory": "vae_approx",
+    "Output": "taef1_decoder.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/gemasai/4x_NMKD-Siax_200k/resolve/main/4x_NMKD-Siax_200k.pth",
+    "Directory": "upscale_models",
+    "Output": "4x_NMKD-Siax_200k.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/uwg/upscaler/resolve/main/ESRGAN/4x_foolhardy_Remacri.pth",
+    "Directory": "upscale_models",
+    "Output": "4x_foolhardy_Remacri.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/uwg/upscaler/resolve/main/ESRGAN/8x_NMKD-Superscale_150000_G.pth",
+    "Directory": "upscale_models",
+    "Output": "8x_NMKD-Superscale_150000_G.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/gsdf/EasyNegative/resolve/main/EasyNegative.safetensors",
+    "Directory": "embeddings",
+    "Output": "easynegative.safetensors"
+  },
+  {
+    "Url": "https://hf-mirror.com/lenML/DeepNegative/resolve/main/NG_DeepNegative_V1_75T.pt",
+    "Directory": "embeddings",
+    "Output": "ng_deepnegative_v1_75t.pt"
+  },
+  {
+    "Url": "https://hf-mirror.com/dustysys/ddetailer/resolve/main/mmdet/bbox/mmdet_anime-face_yolov3.pth",
+    "Directory": "mmdets/bbox",
+    "Output": "mmdet_anime-face_yolov3.pth"
+  },
+  {
+    "Url": "https://ghp.ci/https://raw.githubusercontent.com/Bing-su/dddetailer/master/config/mmdet_anime-face_yolov3.py",
+    "Directory": "mmdets/bbox",
+    "Output": "mmdet_anime-face_yolov3.py"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/sams/sam_vit_b_01ec64.pth",
+    "Directory": "sams",
+    "Output": "sam_vit_b_01ec64.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/Bingsu/adetailer/resolve/main/face_yolov8m.pt",
+    "Directory": "ultralytics/bbox",
+    "Output": "face_yolov8m.pt"
+  },
+  {
+    "Url": "https://hf-mirror.com/Bingsu/adetailer/resolve/main/hand_yolov8s.pt",
+    "Directory": "ultralytics/bbox",
+    "Output": "hand_yolov8s.pt"
+  },
+  {
+    "Url": "https://hf-mirror.com/Bingsu/adetailer/resolve/main/person_yolov8m-seg.pt",
+    "Directory": "ultralytics/segm",
+    "Output": "person_yolov8m-seg.pt"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GFPGANv1.3.pth",
+    "Directory": "facerestore_models",
+    "Output": "GFPGANv1.3.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GFPGANv1.4.pth",
+    "Directory": "facerestore_models",
+    "Output": "GFPGANv1.4.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/codeformer-v0.1.0.pth",
+    "Directory": "facerestore_models",
+    "Output": "codeformer-v0.1.0.pth"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GPEN-BFR-512.onnx",
+    "Directory": "facerestore_models",
+    "Output": "GPEN-BFR-512.onnx"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GPEN-BFR-1024.onnx",
+    "Directory": "facerestore_models",
+    "Output": "GPEN-BFR-1024.onnx"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/facerestore_models/GPEN-BFR-2048.onnx",
+    "Directory": "facerestore_models",
+    "Output": "GPEN-BFR-2048.onnx"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/inswapper_128.onnx",
+    "Directory": "insightface",
+    "Output": "inswapper_128.onnx"
+  },
+  {
+    "Url": "https://hf-mirror.com/datasets/Gourieff/ReActor/resolve/main/models/inswapper_128_fp16.onnx",
+    "Directory": "insightface",
+    "Output": "inswapper_128_fp16.onnx"
+  }
+]

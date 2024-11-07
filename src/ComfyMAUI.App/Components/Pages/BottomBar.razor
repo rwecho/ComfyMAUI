@@ -11,21 +11,26 @@
 
 <SkeletonBox OnLoad="Load">
     <ChildContent>
-        <div class="overflow-x-hidden overflow-y-hidden h-[32px] w-full bg-gray-100 flex px-4 items-center justify-center">
-            <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoSettings">配置</Button>
-            <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoWorkflowPage">工作流</Button>
-            <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoModelsPage">模型</Button>
+        <div class="overflow-x-hidden overflow-y-hidden h-[32px] w-full bg-gray-100 flex px-4 items-center">
+            <Flex>
+                <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoSettings">配置</Button>
+                <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoWorkflowPage">工作流</Button>
+                <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoModelsPage">模型</Button>
 
-            <Divider Type="DirectionVHType.Vertical"></Divider>
-            <span>@_gitVersion</span>
-            <Divider Type="DirectionVHType.Vertical"></Divider>
-            <span>python3 @_pythonVersion</span>
-            <Divider Type="DirectionVHType.Vertical"></Divider>
-            <span>comfyUI @_comfyUIVersion</span>
+                <Divider Type="DirectionVHType.Vertical"></Divider>
+                <span>@_gitVersion</span>
+                <Divider Type="DirectionVHType.Vertical"></Divider>
+                <span>python3 @_pythonVersion</span>
+                <Divider Type="DirectionVHType.Vertical"></Divider>
+                <span>comfyUI @_comfyUIVersion</span>
+            </Flex>
+            <Flex Class="ml-auto">
+                <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoAria2c" Icon="@IconType.Outline.Download"></Button>
+            </Flex>
         </div>
     </ChildContent>
     <Skeleton>
-        <SkeletonElement Type="input" Active="true" Size="SkeletonElementSize.Default" style="width:300px"></SkeletonElement>
+        <SkeletonElement Type="input" Active="true" Size="SkeletonElementSize.Default" style="width:1000px"></SkeletonElement>
     </Skeleton>
 </SkeletonBox>
 
@@ -49,17 +54,12 @@
 
     private async Task GoWorkflowPage()
     {
-        var toast = Toast.Make("正在建设中...");
-        await toast.Show();
-
+        await navigationService.PushAsync(new BlazorPage("/workflows"));
     }
 
     private async Task GoModelsPage()
     {
-        var toast = Toast.Make("正在建设中...");
-
-        await toast.Show();
-
+        await navigationService.PushAsync(new BlazorPage("/models"));
     }
 
     private async Task Load()
@@ -67,5 +67,10 @@
         _gitVersion = await gitService.GetVersion();
         _pythonVersion = await comfyUIService.GetPythonVersion();
         _comfyUIVersion = await comfyUIService.GetComfyUIVersion();
+    }
+
+    private async Task GoAria2c()
+    {
+        await navigationService.PushAsync(new BlazorPage("/aria2c"));
     }
 }

@@ -66,7 +66,7 @@ public class DownloadAndSetupViewModel(
         var extractObservable = Observable.Create<SevenZipExtractor.Entry>(observable =>
         {
             StatusObservable.OnNext(DownloadSetupStatus.Extracting);
-            var filePath = _jobObservable.Value?.Status?.Files[0].Path;
+            var filePath = _jobObservable.Value?.Status?.Files[0].Path!;
             using var archive = new SevenZipExtractor.ArchiveFile(filePath);
             archive.Extract(entry =>
             {
@@ -75,12 +75,15 @@ public class DownloadAndSetupViewModel(
                 return Path.Combine(installationPath, entry.FileName.Replace("ComfyUI_windows_portable\\", ""));
             });
             observable.OnCompleted();
-            _extractFileNameObservable.OnNext("安装完成");
 
+            _extractFileNameObservable.OnNext("安装完成");
             return () => { };
         })
         .Finally(() =>
         {
+            var filePath = _jobObservable.Value?.Status?.Files[0].Path!;
+            _extractFileNameObservable.OnNext("安装完成, 删除压缩包");
+            File.Delete(filePath);
             logger.LogInformation("已经解压文件");
         });
 

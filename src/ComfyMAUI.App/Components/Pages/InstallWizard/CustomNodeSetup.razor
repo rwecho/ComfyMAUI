@@ -1,19 +1,21 @@
 ﻿@using ComfyMAUI.Views
+
 @inject ComfyNodesService comfyNodesService
+@inject SettingsService settingsService
+@inject GitService gitService
 @implements IDisposable
 
-<SkeletonBox OnLoad="Load" @ref="_skeletonBox">
+<SkeletonBox OnLoad="Load">
     <Skeleton>
         <Skeleton Active="true"></Skeleton>
     </Skeleton>
     <ChildContent>
-        @if (_logs.Any() || _pulling)
+        @if (_pulling || _lines.Any())
         {
-            <Alert Type="@AlertType.Info" Message="正在下载节点"></Alert>
-            <Flex Gap="small" Vertical="true" Class="m-4 h-[260px] overflow-y-auto bg-gray-100">
-                @foreach (var log in _logs)
+            <Flex Vertical="true" Gap="small" Class="m-4 h-[260px] overflow-y-auto bg-gray-100">
+                @foreach (var line in _lines)
                 {
-                    <TextDisplay IsVertical="false" Title="@log"></TextDisplay>
+                    <Alert Type="@AlertType.Info" Message="@line"></Alert>
                 }
             </Flex>
         }
@@ -45,8 +47,7 @@
             {
                 <Button Type="primary" OnClick="Download">下载节点</Button>
             }
-            <Button Class="ml-auto" Type="primary"
-                OnClick="OnComplete">完成</Button>
+            <Button Class="ml-auto" Type="primary" Disabled="@_pulling" OnClick="ViewModel.OnNext">下一步</Button>
         </div>
     </ChildContent>
 </SkeletonBox>
@@ -54,58 +55,66 @@
 @code {
     [CascadingParameter]
     public InstallWizardViewModel ViewModel { get; set; } = null!;
-
     [CascadingParameter]
     public IHostWindowViewModel HostWindowViewModel { get; set; } = null!;
-
     private IReadOnlyList<ComfyNode> _comfyNodes = [];
-
-    private SkeletonBox? _skeletonBox;
-
-    private List<string> _logs = new();
-
     private Subject<bool> _disposed = new();
-
+    private ComfyUIPythonSettings? _comfyUISettings;
+    private MirrorSettings? _mirrorSettings;
     private bool _pulling;
+    private List<string> _lines = [];
 
     private async Task Load()
     {
         _comfyNodes = await comfyNodesService.GetNodes();
+        _comfyUISettings = await settingsService.Get<ComfyUIPythonSettings>(ComfyUIPythonSettings.Key);
+        _mirrorSettings = await settingsService.Get<MirrorSettings>(MirrorSettings.Key);
     }
 
-    private ISubject<string>? _pullStream;
-
-    private async Task Download()
+    private Task Download()
     {
-        // _pulling = true;
-        // await this.InvokeAsync(StateHasChanged);
-        // _pullStream = await ViewModel.PullComfyNodes(_comfyNodes);
+        if (_comfyUISettings == null || _mirrorSettings == null) return Task.CompletedTask;
 
-        // _logs = new List<string>();
+        _lines.Clear();
 
-        // _pullStream
-        //     .TakeUntil(_disposed)
-        //     .Do((line) =>
-        //     {
-        //         _logs.Add(line);
-        //         this.InvokeAsync(StateHasChanged);
-        //     })
-        //     .FinallyAsync(async () =>
-        //     {
-        //         _pulling = false;
-        //         await this.InvokeAsync(StateHasChanged);
-        //     })
-        //     .Subscribe();
-    }
-
-
-    private async Task OnComplete()
-    {
-        if (HostWindowViewModel is IPopupHostWindowViewModel popupHostWindowViewModel)
+        var pullingObservable = Observable.Create<string>(async (observable) =>
         {
-            await popupHostWindowViewModel.CloseAsync();
-        }
+            _pulling = true;
+            observable.OnNext($"开始下载");
+            foreach (var node in _comfyNodes)
+            {
+                var nodeFolder = Path.Combine(_comfyUISettings.CustomNodesFolder, node.Name);
+                if (Directory.Exists(nodeFolder))
+                {
+                    observable.OnNext($"{node.Name} 已经存在，跳过");
+                    continue;
+                }
+                observable.OnNext($"开始下载 {node.Name}");
+                var url = $"{_mirrorSettings.GitHubMirror.TrimEnd('/')}/{node.GitUrl}";
+                await gitService.Clone(url, _comfyUISettings.CustomNodesFolder, (line) =>
+                {
+                    observable.OnNext(line ?? string.Empty);
+                });
+                observable.OnNext($"{node.Name} 下载完成");
+            }
+            observable.OnNext($"下载完成");
+            observable.OnCompleted();
+        })
+        .TakeUntil(_disposed)
+        .Do((line) =>
+        {
+            _lines.Add(line);
+            this.InvokeAsync(StateHasChanged);
+        });
+        pullingObservable.Finally(() =>
+        {
+            _pulling = false;
+            this.InvokeAsync(StateHasChanged);
+        }).Subscribe();
+        return Task.CompletedTask;
     }
+
+   
 
     public void Dispose()
     {

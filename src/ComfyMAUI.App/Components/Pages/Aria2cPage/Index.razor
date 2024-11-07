@@ -1,0 +1,90 @@
+﻿@inject INotificationService notice
+@inject Aria2JobManager aria2JobManager
+@implements IDisposable
+
+@page "/aria2c"
+@using Aria2NET
+
+<Flex Class="max-w-2xl mx-auto overflow-x-hidden">
+    <SkeletonBox OnLoad="Load">
+        <Card Class="mx-4 py-4 w-full">
+            <Body>
+                <Table PageSize="50" TItem="DownloadStatusResult" DataSource="_statusResults">
+                    <PropertyColumn Title="文件名"
+                                    Property="c=>Path.GetFileName(c.Files[0].Path)"
+                                    Sortable="true"></PropertyColumn>
+
+                    <PropertyColumn Title="状态"
+                                    Sortable="true"
+                                    Property="c=>c.Status"></PropertyColumn>
+
+                    <PropertyColumn Title="下载速度"
+                                    Property="c=>c.DownloadSpeed.ToHumanReadable()">
+                    </PropertyColumn>
+
+                    <PropertyColumn Title="已下载"
+                                    Property="c=>c.CompletedLength.ToHumanReadable()">
+
+                    </PropertyColumn>
+                    <PropertyColumn Title="总大小"
+                                    Property="c=>c.TotalLength.ToHumanReadable()">
+                    </PropertyColumn>
+
+                </Table>
+            </Body>
+        </Card>
+    </SkeletonBox>
+
+    <style>
+        .ant-table {
+            overflow-x: auto;
+        }
+    </style>
+</Flex>
+
+@code {
+
+    private List<DownloadStatusResult> _statusResults = [];
+    private Subject<bool> _disposed = new();
+
+    private async Task Load()
+    {
+        _statusResults = (await aria2JobManager.TellAllAsync()).ToList();
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        Observable.Interval(TimeSpan.FromSeconds(1))
+            .TakeUntil(_disposed)
+            .Select(o => Observable.FromAsync(async () =>
+            {
+                return await aria2JobManager.TellActiveAsync();
+            }))
+            .Switch()
+            .Do(o =>
+            {
+                foreach (var item in o)
+                {
+                    var index = _statusResults.FindIndex(t => t.Gid == item.Gid);
+                    if (index >= 0)
+                    {
+                        _statusResults[index] = item;
+                    }
+                    else
+                    {
+                        _statusResults.Add(item);
+                    }
+                }
+
+                InvokeAsync(StateHasChanged);
+            })
+            .Subscribe();
+        return base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        _disposed.OnNext(true);
+        _disposed.OnCompleted();
+    }
+}
