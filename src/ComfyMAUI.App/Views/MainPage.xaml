@@ -3,16 +3,30 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:ComfyMAUI"
              xmlns:views="clr-namespace:ComfyMAUI.Views"
+             xmlns:tools="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ComfyMAUI.Views.MainPage"
              Title="Comfy MAUI"
              NavigationPage.HasNavigationBar="False"
         x:DataType="views:MainPageViewModel">
+    <ContentPage.Resources>
+        <tools:InvertedBoolConverter x:Key="InvertedBoolConverter"></tools:InvertedBoolConverter>
+    </ContentPage.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="32" />
         </Grid.RowDefinitions>
-        <WebView Source="{Binding Url}"/>
+        <WebView Grid.Row="0" Source="{Binding Url}" IsVisible="{Binding WebAvailable}" />
+        <BlazorWebView Grid.Row="0"
+                       x:Name="blazorHolderWebView"
+                       HostPage="wwwroot/index.html"
+                       StartPath="/loading"
+                       IsVisible="{Binding WebAvailable, Converter={StaticResource InvertedBoolConverter}}">
+            <BlazorWebView.RootComponents>
+                <RootComponent Selector="#app"
+                    ComponentType="{x:Type local:Components.Routes}"/>
+            </BlazorWebView.RootComponents>
+        </BlazorWebView>
 
         <BlazorWebView  Grid.Row="1"
                 x:Name="blazorWebView"

@@ -15,6 +15,19 @@ public class Startup
 
     public void ConfigureServices(IConfiguration configuration, IServiceCollection services)
     {
+
+        services.AddHttpClient();
+
+        services.AddSingleton((sp) =>
+        {
+            if (Application.Current == null)
+            {
+                throw new InvalidOperationException("Application.Current is null");
+            }
+
+            return Application.Current.Dispatcher;
+        });
+
         services.AddSingleton<Aria2JobManager>();
         services.AddTransient<ComfyUIService>();
         services.AddTransient<GitService>();
@@ -44,6 +57,7 @@ public class Startup
         services.AddHostedService<ComfyProcessHostedService>();
 
         services.Configure<Aria2cOptions>(configuration.GetSection("Aria2c").Bind);
+        services.Configure<ComfyUIOptions>(configuration.GetSection("ComfyUI").Bind);
     }
 
     public void OnApplicationInitialization(IServiceProvider services)

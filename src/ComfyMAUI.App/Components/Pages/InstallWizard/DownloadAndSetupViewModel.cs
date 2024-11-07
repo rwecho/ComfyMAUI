@@ -26,13 +26,12 @@ public class DownloadAndSetupViewModel(
 
     public Subject<DownloadSetupStatus> StatusObservable { get; } = new();
 
-    public void DownloadAndSetup(string installationPath)
+    public void DownloadAndSetup(string url, string installationPath)
     {
         StatusObservable.OnNext(DownloadSetupStatus.Pending);
 
         var downloadObservable = Observable.FromAsync(async () =>
         {
-            var url = "http://myhome.rwecho.top:9000/comfy-maui/ComfyUI_windows_portable_nvidia.1.7z?Content-Disposition=attachment%3B%20filename%3D%22ComfyUI_windows_portable_nvidia.1.7z%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=echo%2F20241104%2F%2Fs3%2Faws4_request&X-Amz-Date=20241104T140318Z&X-Amz-Expires=432000&X-Amz-SignedHeaders=host&X-Amz-Signature=8e0ce03ff6cfdd517105dd8fce0f6a432af8dbb969b0810b0ff88eea680674ac";
             var job = await aria2JobManager.AddJob(url, installationPath);
             _jobObservable.OnNext(job);
             StatusObservable.OnNext(DownloadSetupStatus.Downloading);

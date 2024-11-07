@@ -102,7 +102,7 @@
                 <Button Type="danger" Icon="@IconType.Outline.CloudDownload" OnClick="DownloadAndSetup">下载并安装</Button>
             }
             <Button Class="ml-auto" Type="primary" Disabled="!(!string.IsNullOrEmpty( _comfyUIVersion )&& !string.IsNullOrEmpty( _pythonVersion))"
-                    OnClick="ViewModel.OnNext">
+            OnClick="ViewModel.OnNext">
                 下一步
             </Button>
         </div>
@@ -125,6 +125,8 @@
 
     private ComfyUIPythonSettings? _comfyUIPythonSettings;
 
+    private MirrorSettings? _mirrorSettings;
+
     [Inject]
     public IServiceProvider ServiceProvider { get; set; } = null!;
 
@@ -138,6 +140,9 @@
     private async Task Load()
     {
         _comfyUIPythonSettings = await SettingsService.Get<ComfyUIPythonSettings>(ComfyUIPythonSettings.Key);
+
+        _mirrorSettings = await SettingsService.Get<MirrorSettings>(MirrorSettings.Key);
+
         _pythonVersion = await comfyUIService.GetPythonVersion();
         _comfyUIVersion = await comfyUIService.GetComfyUIVersion();
     }
@@ -168,7 +173,7 @@
 
     private Task DownloadAndSetup()
     {
-        if(_comfyUIPythonSettings == null)
+        if (_comfyUIPythonSettings == null | _mirrorSettings == null)
         {
             return Task.CompletedTask;
         }
@@ -203,7 +208,16 @@
             _text = text ?? "";
             InvokeAsync(StateHasChanged);
         });
-        viewModel.DownloadAndSetup(_comfyUIPythonSettings.InstallationPath);
+
+        var url = "https://github.com/comfyanonymous/ComfyUI/releases/download/v0.2.7/ComfyUI_windows_portable_nvidia.7z";
+
+        #if DEBUG
+        url = "http://myhome.rwecho.top:9000/comfy-maui/ComfyUI_windows_portable_nvidia.1.7z?Content-Disposition=attachment%3B%20filename%3D%22ComfyUI_windows_portable_nvidia.1.7z%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=echo%2F20241104%2F%2Fs3%2Faws4_request&X-Amz-Date=20241104T140318Z&X-Amz-Expires=432000&X-Amz-SignedHeaders=host&X-Amz-Signature=8e0ce03ff6cfdd517105dd8fce0f6a432af8dbb969b0810b0ff88eea680674ac";
+        #endif
+
+        var fullUrl = $"{_mirrorSettings.GitHubMirror.TrimEnd('/')}/{url}";
+
+        viewModel.DownloadAndSetup(fullUrl,_comfyUIPythonSettings.InstallationPath);
 
         return Task.CompletedTask;
     }

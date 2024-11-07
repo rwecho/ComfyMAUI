@@ -26,6 +26,7 @@
             </Flex>
             <Flex Class="ml-auto">
                 <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoAria2c" Icon="@IconType.Outline.Download"></Button>
+                <Button Size="@ButtonSize.Small" Type="@ButtonType.Text" OnClick="GoChat" Icon="@IconType.Outline.Question"></Button>
             </Flex>
         </div>
     </ChildContent>
@@ -72,5 +73,10 @@
     private async Task GoAria2c()
     {
         await navigationService.PushAsync(new BlazorPage("/aria2c"));
+    }
+
+    private async Task GoChat()
+    {
+        await navigationService.PushAsync(new BlazorPage("/chat"));
     }
 }
