@@ -1,4 +1,6 @@
-﻿<SkeletonBox OnLoad="Load">
+﻿@inject SettingsService settingsService
+@inject IMessageService message
+<SkeletonBox OnLoad="Load">
     <Skeleton>
         <Skeleton Active="true"></Skeleton>
     </Skeleton>
@@ -7,7 +9,7 @@
             <Flex Justify="space-between" Align="center">
                 <label class="font-bold">GitHub 镜像地址</label>
                 <Flex Class="w-1/2">
-                    <Input Placeholder="GitHub" @bind-Value="@ViewModel.GitHubMirror" DebounceMilliseconds="100">
+                    <Input Placeholder="GitHub" @bind-Value="@GitHubMirror" DebounceMilliseconds="100">
                         <AddOnAfter><Icon Type="github"></Icon></AddOnAfter>
                     </Input>
                 </Flex>
@@ -15,7 +17,7 @@
             <Flex Justify="space-between" Align="center">
                 <label>HuggingFace 镜像地址</label>
                 <Flex Class="w-1/2">
-                    <Input Placeholder="HuggingFace" @bind-Value="@(ViewModel.HuggingFaceMirror)" DebounceMilliseconds="100">
+                    <Input Placeholder="HuggingFace" @bind-Value="@(HuggingFaceMirror)" DebounceMilliseconds="100">
                         <AddOnAfter><Icon Type="thunderbolt"></Icon></AddOnAfter>
                     </Input>
                 </Flex>
@@ -24,7 +26,7 @@
             <Flex Justify="space-between" Align="center">
                 <label>Pip 镜像地址</label>
                 <Flex Class="w-1/2">
-                    <Input Placeholder="Pip" @bind-Value="@(ViewModel.PipMirror)" DebounceMilliseconds="100">
+                    <Input Placeholder="Pip" @bind-Value="@(PipMirror)" DebounceMilliseconds="100">
                         <AddOnAfter><Icon Type="node-index"></Icon></AddOnAfter>
                     </Input>
                 </Flex>
@@ -32,7 +34,7 @@
         </Flex>
         <Divider></Divider>
         <div class="flex justify-between">
-            <Button Class="ml-auto" Type="primary" Disabled="!ViewModel.CanNext" OnClick="ViewModel.OnNext">下一步</Button>
+            <Button Class="ml-auto" Type="primary" OnClick="ViewModel.OnNext">下一步</Button>
         </div>
     </ChildContent>
 </SkeletonBox>
@@ -42,9 +44,53 @@
     [CascadingParameter]
     public InstallWizardViewModel ViewModel { get; set; } = null!;
 
+    private MirrorSettings _mirrorSettings = new();
 
     private async Task Load()
     {
-        await ViewModel.LoadMirrors();
+        _mirrorSettings = await settingsService.Get<MirrorSettings>(MirrorSettings.Key) ?? new();
+    }
+
+    private string GitHubMirror
+    {
+        get => _mirrorSettings.GitHubMirror;
+        set
+        {
+            _mirrorSettings.GitHubMirror = value;
+            InvokeAsync(Save);
+        }
+    }
+
+    private string HuggingFaceMirror
+    {
+        get => _mirrorSettings.HuggingFaceMirror;
+        set
+        {
+            _mirrorSettings.HuggingFaceMirror = value;
+            InvokeAsync(Save);
+        }
+    }
+
+    private string PipMirror
+    {
+        get => _mirrorSettings.PipMirror;
+        set
+        {
+            _mirrorSettings.PipMirror = value;
+            InvokeAsync(Save);
+        }
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            await settingsService.Set(MirrorSettings.Key, _mirrorSettings);
+            await message.Success("保存成功");
+        }
+        catch (Exception ex)
+        {
+            await message.Error(ex.Message);
+        }
     }
 }

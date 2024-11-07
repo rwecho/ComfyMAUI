@@ -1,7 +1,5 @@
 ﻿using Aria2NET;
 using Microsoft.Extensions.Options;
-using System.Collections.Concurrent;
-using System.Reactive.Subjects;
 
 namespace ComfyMAUI.Services;
 
@@ -9,51 +7,19 @@ public class Aria2JobManager(IOptions<Aria2cOptions> options)
 {
     private readonly Aria2NetClient aria2NetClient = new($"http://127.0.0.1:{options.Value.ListenPort}/jsonrpc");
 
-    private readonly ConcurrentDictionary<string, Aria2Job> Jobs = new();
-
-    public BehaviorSubject<Aria2Job?> JobsStream = new(null);
-
-
-    public async Task<Aria2Job> AddJob(string url)
+    public async Task<Aria2Job> AddJob(string url, string folder)
     {
-        var filename = Path.GetFileName(url);
         var id = await aria2NetClient.AddUriAsync([url], new Dictionary<string, object>()
             {
-                 { "dir", "downloads"}
+                 { "dir", folder}
             }, 0);
-        var job = new Aria2Job(id, url, filename);
-        Jobs.TryAdd(id, job);
+        var job = new Aria2Job(id, url);
         return job;
     }
 
-    public Task<IEnumerable<Aria2Job>> GetJobs()
+    public async Task<DownloadStatusResult> GetStatus(string jobId)
     {
-        return Task.FromResult((IEnumerable<Aria2Job>)Jobs.Values);
-    }
-
-    internal async Task UpdateStatus()
-    {
-        foreach (var job in Jobs.Values)
-        {
-            if(job.Status == null || job.Status?.Status == "active")
-            {
-                var status = await aria2NetClient.TellStatusAsync(job.Id);
-                job.Status = status;
-
-                JobsStream.OnNext(job);
-            }
-
-            if (job.Status?.Status == "complete")
-            {
-                JobsStream.OnCompleted();
-            }
-        }
-    }
-
-    public async Task RemoveJob(string id)
-    {
-        await aria2NetClient.RemoveAsync(id);
-        Jobs.TryRemove(id, out _);
+        return await aria2NetClient.TellStatusAsync(jobId);
     }
 }
 

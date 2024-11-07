@@ -55,7 +55,6 @@ else
         try
         {
             _isLoading = true;
-            await InvokeAsync(StateHasChanged);
             await InvokeAsync(OnLoad.InvokeAsync);
         }
         catch (Exception ex)
@@ -69,6 +68,7 @@ else
         finally
         {
             _isLoading = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

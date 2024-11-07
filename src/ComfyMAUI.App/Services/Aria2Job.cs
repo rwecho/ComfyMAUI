@@ -2,7 +2,7 @@
 
 namespace ComfyMAUI.Services;
 
-public record Aria2Job(string Id, string Url, string Filename)
+public record Aria2Job(string Id, string Url)
 {
     public DownloadStatusResult? Status { get; set; }
 

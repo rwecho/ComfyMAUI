@@ -12,8 +12,6 @@
                 <TextDisplay Title="安装位置" Value="@_gitInstallationPath"></TextDisplay>
             </Col>
         </Row>
-
-
         <Divider></Divider>
         <div class="flex justify-between">
 
@@ -22,7 +20,9 @@
                 <a href="https://registry.npmmirror.com/-/binary/git-for-windows/v2.39.0.windows.2/Git-2.39.0.2-64-bit.exe">下载Git</a>
             }
 
-            <Button Class="ml-auto" Type="primary" Disabled="!(ViewModel.CanNext && !string.IsNullOrEmpty(_gitVersion))" OnClick="ViewModel.OnNext">下一步</Button>
+            <Button Class="ml-auto" Type="primary" 
+                Disabled="string.IsNullOrEmpty(_gitVersion)" 
+                OnClick="ViewModel.OnNext">下一步</Button>
         </div>
     </ChildContent>
 </SkeletonBox>

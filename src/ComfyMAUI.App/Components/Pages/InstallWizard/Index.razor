@@ -2,7 +2,7 @@
 @using ComfyMAUI.Components.Layout
 @using ComfyMAUI.Views
 @inject IMessageService message
-@inject InstallWizardViewModel _viewModel
+@inject InstallWizardViewModel viewModel
 @implements IDisposable
 
 
@@ -13,15 +13,14 @@
         </Button>
     </Extra>
     <Body>
-        <CascadingValue Value="_viewModel">
+        <CascadingValue Value="viewModel">
             <div class="flex-1 flex flex-col" >
                 <Steps Current="_current">
                     @foreach (var item in steps)
                     {
-                        <Step Title="@item.Title" Subtitle="安装" />
+                        <Step Title="@item.Title" />
                     } 
                 </Steps>
-
                 <div class="flex-1 mt-4 round-md flex flex-col">
                     @steps[_current].Content
                 </div>
@@ -53,11 +52,9 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        await _viewModel.Initialize();
-
-        _viewModel.CurrentSubject
+        viewModel.CurrentSubject
         .TakeUntil(_disposed)
         .Do(current =>
         {
@@ -65,6 +62,7 @@
             InvokeAsync(StateHasChanged);
         })
         .Subscribe();
+        return base.OnInitializedAsync();
     }
 
     public class StepItem
@@ -77,13 +75,12 @@
     {
         new StepItem {Title = "镜像", Content = @<MirrorSetup></MirrorSetup> },
         new StepItem {Title = "Git 代码管理", Content = @<GitSetup></GitSetup>},
-        new StepItem {Title = "ComfyUI安装", Content = @<ComfyUISetup></ComfyUISetup>},
+        new StepItem {Title = "ComfyUI", Content = @<ComfyUISetup></ComfyUISetup>},
         new StepItem {Title = "节点下载", Content = @<CustomNodeSetup></CustomNodeSetup>}
     };
 
     public void Dispose()
     {
         _disposed.OnNext(true);
-        _viewModel.Dispose();
     }
 }

@@ -10,18 +10,21 @@
     </Skeleton>
     <ChildContent>
         <Flex Vertical="true" Gap="small" Class="m-4 flex-1">
-            <Flex Justify="space-between" Align="center">
+            @{
+                var hidden = _comfyUIPythonSettings == null ? "hidden" : "";
+            }
+            <Flex Class="@hidden" Justify="space-between" Align="center">
                 <label class="font-bold">安装位置</label>
                 <Flex Class="w-1/2">
-                    <Input ReadOnly Placeholder="ComfyUI 安装位置" @bind-Value="@ViewModel.ComfyUIInstallationPath" DebounceMilliseconds="100">
-                        <AddOnAfter>
-                            <Button Type="text" OnClick="ChooseFolder">
-                                <Icon Type="@IconType.Outline.Folder"></Icon>
-                            </Button>
-                        </AddOnAfter>
-                    </Input>
+                    @if(_comfyUIPythonSettings!=null)
+                    {
+                        <Button Type="text" OnClick="ChooseFolder" Icon="@IconType.Outline.Folder" >
+                            @_comfyUIPythonSettings.InstallationPath
+                        </Button>
+                    }
                 </Flex>
             </Flex>
+
 
             @if (!string.IsNullOrEmpty(_comfyUIVersion))
             {
@@ -45,88 +48,116 @@
                 </Flex>
             }
 
-            @if (_isDownloading && _job != null)
+            @switch(_status)
             {
-                if (_job.Status == null)
-                {
-                    <Alert Type="@AlertType.Info" Message="准备下载 ComfyUI" />
-                }
-                else if (_job.Status.Status == "active")
-                {
-                    var progress = (int)(_job.Status.CompletedLength * 1.0 / _job.Status.TotalLength * 100);
+                case DownloadSetupStatus.Downloading:
+                    @if (_job != null)
+                    {
+                        if (_job.Status == null)
+                        {
+                            <Alert Type="@AlertType.Info" Message="准备下载 ComfyUI" />
+                        }
+                        else if (_job.Status.Status == "active")
+                        {
+                            var progress = (int)(_job.Status.CompletedLength * 1.0 / _job.Status.TotalLength * 100);
 
-                    <Alert Type="@AlertType.Info" Message="正在下载 ComfyUI" />
-                    <Progress Percent="@(progress)" />
-                    <Flex Gap="small">
-                        <TextDisplay IsVertical="false" Title="下载速度" Value="@_job.Status.DownloadSpeed.ToHumanReadable()" />
-                        <TextDisplay IsVertical="false" Title="已下载" Value="@(_job.Status.CompletedLength.ToHumanReadable())" />
-                        <TextDisplay IsVertical="false" Title="总大小" Value="@(_job.Status.TotalLength.ToHumanReadable())" />
-                    </Flex>
-                }
-                else if (_job.Status.Status == "complete")
-                {
-                    <Alert Type="@AlertType.Success" Message="下载完成" />
-                }
-                else if (_job.Status.Status == "error")
-                {
-                    <Alert Type="@AlertType.Error" Message="下载失败" />
-                }
-            }
-
-            @if (_isExtracting)
-            {
-                var text = $"正在解压文件：{_text}";
-                <Alert Type="@AlertType.Info" Message="@text" />
+                            <Alert Type="@AlertType.Info" Message="正在下载 ComfyUI" />
+                            <Progress Percent="@(progress)" />
+                            <Flex Gap="small">
+                                <TextDisplay IsVertical="false" Title="下载速度" Value="@_job.Status.DownloadSpeed.ToHumanReadable()" />
+                                <TextDisplay IsVertical="false" Title="已下载" Value="@(_job.Status.CompletedLength.ToHumanReadable())" />
+                                <TextDisplay IsVertical="false" Title="总大小" Value="@(_job.Status.TotalLength.ToHumanReadable())" />
+                            </Flex>
+                        }
+                        else if (_job.Status.Status == "complete")
+                        {
+                            <Alert Type="@AlertType.Success" Message="下载完成" />
+                        }
+                        else if (_job.Status.Status == "error")
+                        {
+                            <Alert Type="@AlertType.Error" Message="下载失败" />
+                        }
+                    }
+                    else
+                    {
+                        <Alert Type="@AlertType.Info" Message="正在下载 ComfyUI" />
+                    }
+                    break;
+                case DownloadSetupStatus.Extracting:
+                    @if (_text != null)
+                    {
+                        var text = $"正在解压文件：{_text}";
+                        <Alert Type="@AlertType.Info" Message="@text" />
+                    }
+                    break;
+                case DownloadSetupStatus.Completed:
+                    <Alert Type="@AlertType.Success" Message="安装完成" />  
+                    break;
             }
         </Flex>
         <Divider></Divider>
         <div class="flex justify-between">
-            @if (string.IsNullOrEmpty(_comfyUIVersion) || string.IsNullOrEmpty(_pythonVersion) && _job == null)
+            @if ((string.IsNullOrEmpty(_comfyUIVersion) || string.IsNullOrEmpty(_pythonVersion)) && _status == null)
             {
-                if (!(_isDownloading || _isExtracting))
-                {
-                    <Button Type="danger" Icon="@IconType.Outline.CloudDownload" OnClick="DownloadSetup">下载并安装</Button>
-                }
+                <Button Type="danger" Icon="@IconType.Outline.CloudDownload" OnClick="DownloadAndSetup">下载并安装</Button>
             }
-            <Button Class="ml-auto" Type="primary" Disabled="!(ViewModel.CanNext && !string.IsNullOrEmpty( _comfyUIVersion )&& !string.IsNullOrEmpty( _pythonVersion))" OnClick="ViewModel.OnNext">下一步</Button>
+            <Button Class="ml-auto" Type="primary" Disabled="!(!string.IsNullOrEmpty( _comfyUIVersion )&& !string.IsNullOrEmpty( _pythonVersion))"
+                    OnClick="ViewModel.OnNext">
+                下一步
+            </Button>
         </div>
     </ChildContent>
 </SkeletonBox>
 @code {
-    [CascadingParameter]
-    public InstallWizardViewModel ViewModel { get; set; } = null!;
 
     private string? _comfyUIVersion, _pythonVersion;
+
+    private string _installationPath ="bin";
 
     private SkeletonBox? _skeletonBox;
 
     private Subject<bool> _disposed = new();
 
-    private Aria2Job? _job;
-    private bool _isExtracting, _isDownloading;
-
     private string _text = "";
+    private Aria2Job? _job;
+
+    private DownloadSetupStatus? _status;
+
+    private ComfyUIPythonSettings? _comfyUIPythonSettings;
+
+    [Inject]
+    public IServiceProvider ServiceProvider { get; set; } = null!;
+
+    [Inject]
+    public SettingsService SettingsService { get; set; } = null!;
+
+    [CascadingParameter]
+    public InstallWizardViewModel ViewModel { get; set; } = null!;
+
 
     private async Task Load()
     {
+        _comfyUIPythonSettings = await SettingsService.Get<ComfyUIPythonSettings>(ComfyUIPythonSettings.Key);
         _pythonVersion = await comfyUIService.GetPythonVersion();
         _comfyUIVersion = await comfyUIService.GetComfyUIVersion();
     }
 
     private async Task ChooseFolder()
     {
-        var result = await FolderPicker.Default.PickAsync(ViewModel.ComfyUIInstallationPath);
+        if (_comfyUIPythonSettings == null) return;
+        var result = await FolderPicker.Default.PickAsync(_comfyUIPythonSettings.InstallationPath);
 
         if (result.IsSuccessful)
         {
             var folder = result.Folder.Path;
-            ViewModel.ComfyUIInstallationPath = folder;
+            _comfyUIPythonSettings.InstallationPath = folder;
 
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
             }
-            await ViewModel.SaveComfyUISetting();
+
+            await SettingsService.Set<ComfyUIPythonSettings>(ComfyUIPythonSettings.Key, _comfyUIPythonSettings);
 
             if (_skeletonBox != null)
             {
@@ -135,74 +166,48 @@
         }
     }
 
-    private async Task DownloadSetup()
+    private Task DownloadAndSetup()
     {
-        var job = await ViewModel.SetupComfyUI();
-        _job = job;
-        var setupStream = await GetSetupStream();
-
-        ViewModel.Aria2Job
-            .TakeUntil(_disposed)
-            .Where(o => o?.Id == job.Id)
-            .Do(o =>
-            {
-                _isDownloading = true;
-                _job = o;
-                InvokeAsync(StateHasChanged);
-            })
-            .Select(_ => Unit.Default)
-            .Concat(setupStream)
-            .Finally(() =>
-            {
-                _isDownloading = false;
-            })
-            .Subscribe();
-    }
-
-    private async Task<IObservable<Unit>> GetSetupStream()
-    {
-        var filePath = _job?.Status?.Files.FirstOrDefault()?.Path;
-
-        if (!File.Exists(filePath))
+        if(_comfyUIPythonSettings == null)
         {
-            return Observable.Empty<Unit>();
+            return Task.CompletedTask;
         }
-        var extractStream = await ViewModel.SetupComfyUI(filePath);
 
-        return extractStream
-            .TakeUntil(_disposed)
-            .Do(o =>
-            {
-                if (!_isExtracting)
-                {
-                    _isExtracting = true;
-                }
+        var viewModel = ActivatorUtilities.CreateInstance<DownloadAndSetupViewModel>(ServiceProvider);
 
-                if (o == null)
-                {
-                    return;
-                }
-                _text = o;
-            })
-            .Sample(TimeSpan.FromMilliseconds(50))
-            .Select(o => Observable.FromAsync(async () =>
+        viewModel.StatusObservable
+        .Sample(TimeSpan.FromMicroseconds(100))
+        .Do((status) =>
+        {
+            _status = status;
+            if (_status == DownloadSetupStatus.Completed)
             {
-                await InvokeAsync(StateHasChanged);
-            }))
-            .Switch()
-            .FinallyAsync(async () =>
-            {
-                _isExtracting = false;
-                await message.Success("ComfyUI 安装完成");
-
                 if (_skeletonBox != null)
-                {
-                    await _skeletonBox.Reload();
-                }
+                    InvokeAsync(_skeletonBox.Reload);
+            }
+            InvokeAsync(StateHasChanged);
+        })
+        .Subscribe();
 
-                await InvokeAsync(StateHasChanged);
-            });
+        viewModel.JobObservable
+        .Subscribe(job =>
+        {
+            _job = job;
+            InvokeAsync(StateHasChanged);
+        });
+
+        viewModel.ExtractFileNameObservable
+         .Sample(TimeSpan.FromMicroseconds(100))
+        .Subscribe(text =>
+        {
+            _text = text ?? "";
+            InvokeAsync(StateHasChanged);
+        });
+        viewModel.DownloadAndSetup(_comfyUIPythonSettings.InstallationPath);
+
+        return Task.CompletedTask;
     }
+
 
     public void Dispose()
     {

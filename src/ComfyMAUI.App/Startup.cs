@@ -27,6 +27,7 @@ public class Startup
         
         
         services.AddTransient<InstallWizardViewModel>();
+        services.AddTransient<DownloadAndSetupViewModel>();
 
         services.AddAntDesign();
         services.AddMauiBlazorWebView();
@@ -39,7 +40,6 @@ public class Startup
         services.AddTransient<MainPageViewModel>();
 
         services.AddHostedService<Aria2ServerHosedService>();
-        services.AddHostedService<Aria2JobManagerHostedService>();
         services.AddHostedService<ComfyProcessHostedService>();
 
         services.Configure<Aria2cOptions>(configuration.GetSection("Aria2c").Bind);

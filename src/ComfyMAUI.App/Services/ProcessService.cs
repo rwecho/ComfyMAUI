@@ -83,7 +83,8 @@ public class ProcessService
 
         await Start(command, arguments, workingDirectory,
             outputReceived: data => output.AppendLine(data),
-            errorReceived: data => output.AppendLine(data));
+            errorReceived: data => output.AppendLine(data),
+            waitForExit: true);
 
         return output.ToString();
     }

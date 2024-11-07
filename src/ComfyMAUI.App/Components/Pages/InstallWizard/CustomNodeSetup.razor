@@ -45,7 +45,8 @@
             {
                 <Button Type="primary" OnClick="Download">下载节点</Button>
             }
-            <Button Class="ml-auto" Type="primary" Disabled="!(ViewModel.CanNext)" OnClick="OnComplete">完成</Button>
+            <Button Class="ml-auto" Type="primary"
+                OnClick="OnComplete">完成</Button>
         </div>
     </ChildContent>
 </SkeletonBox>
@@ -76,25 +77,25 @@
 
     private async Task Download()
     {
-        _pulling = true;
-        await this.InvokeAsync(StateHasChanged);
-        _pullStream = await ViewModel.PullComfyNodes(_comfyNodes);
+        // _pulling = true;
+        // await this.InvokeAsync(StateHasChanged);
+        // _pullStream = await ViewModel.PullComfyNodes(_comfyNodes);
 
-        _logs = new List<string>();
+        // _logs = new List<string>();
 
-        _pullStream
-            .TakeUntil(_disposed)
-            .Do((line) =>
-            {
-                _logs.Add(line);
-                this.InvokeAsync(StateHasChanged);
-            })
-            .FinallyAsync(async () =>
-            {
-                _pulling = false;
-                await this.InvokeAsync(StateHasChanged);
-            })
-            .Subscribe();
+        // _pullStream
+        //     .TakeUntil(_disposed)
+        //     .Do((line) =>
+        //     {
+        //         _logs.Add(line);
+        //         this.InvokeAsync(StateHasChanged);
+        //     })
+        //     .FinallyAsync(async () =>
+        //     {
+        //         _pulling = false;
+        //         await this.InvokeAsync(StateHasChanged);
+        //     })
+        //     .Subscribe();
     }
 
 
